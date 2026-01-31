@@ -44,4 +44,10 @@ Jeśli potrzebujesz, mogę pomóc zaprojektować konkretną architekturę danych
 - **GitHub Actions** automatyzuje testy, budowanie stron Astro i wdrożenie.
 - **DigitalOcean + Docker** to środowisko hostujące aplikację, którym można łatwo zarządzać przez obraz kontenera.
 
+### Testy
+- **Vitest**: testy jednostkowe i integracyjne (TypeScript).
+- **Testing Library**: testy komponentów React (`@testing-library/react`, `@testing-library/user-event`).
+- **MSW (Mock Service Worker)**: mockowanie HTTP w testach frontendu.
+- **Playwright**: testy end-to-end (E2E) w przeglądarce.
+
 Stos łączy szybkie prototypowanie UI z wydajnym backendem i zewnętrznym AI, co pozwala zrealizować MVP zgodnie z PRD w 10-tygodniowym harmonogramie.

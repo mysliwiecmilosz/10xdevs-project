@@ -17,6 +17,14 @@ pnpm-debug.log*
 .env
 .env.production
 
+# vitest
+coverage/
+
+# playwright
+playwright-report/
+test-results/
+blob-report/
+
 # macOS-specific files
 .DS_Store
 

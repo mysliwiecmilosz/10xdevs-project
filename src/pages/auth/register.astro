@@ -1,0 +1,27 @@
+---
+import AuthLayout from "../../layouts/AuthLayout.astro";
+import { createSupabaseServerInstance } from "@/db/supabase.client.ts";
+import { RegisterFormContainer } from "@/components/auth/RegisterFormContainer";
+
+const supabase = createSupabaseServerInstance({
+  cookies: Astro.cookies,
+  headers: Astro.request.headers,
+});
+const {
+  data: { user },
+} = await supabase.auth.getUser();
+if (user) {
+  return Astro.redirect("/");
+}
+---
+
+<AuthLayout title="Załóż konto" lead="Stwórz pełne konto i zachowaj swoje fiszki na stałe.">
+  <RegisterFormContainer client:load />
+
+  <Fragment slot="footer">
+    Masz już konto?
+    <a class="ml-1 font-medium text-primary hover:underline" href="/auth/login">
+      Zaloguj się
+    </a>
+  </Fragment>
+</AuthLayout>

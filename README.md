@@ -41,6 +41,12 @@ The manual creation of flashcards is often a bottleneck in effective learning. A
 - **GitHub Actions:** Automated CI/CD pipelines.
 - **DigitalOcean + Docker:** Containerized hosting and deployment.
 
+### Testing
+- **Vitest:** Unit/integration tests for TypeScript code.
+- **Testing Library:** React component tests (`@testing-library/react`, `@testing-library/user-event`).
+- **MSW:** HTTP mocking for frontend tests.
+- **Playwright:** End-to-end (E2E) browser tests.
+
 ---
 
 ## Getting Started Locally
@@ -105,6 +111,10 @@ The manual creation of flashcards is often a bottleneck in effective learning. A
 | `npm run lint` | Runs ESLint to check for code quality issues. |
 | `npm run lint:fix` | Automatically fixes linting errors where possible. |
 | `npm run format` | Formats the codebase using Prettier. |
+| `npm run test:unit` | Runs unit/integration tests (Vitest). |
+| `npm run test:unit:watch` | Runs Vitest in watch mode. |
+| `npm run test:e2e:install` | Installs Playwright Chromium. |
+| `npm run test:e2e` | Runs E2E tests (Playwright, Chromium only). |
 
 ---
 

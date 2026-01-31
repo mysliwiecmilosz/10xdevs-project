@@ -1,0 +1,32 @@
+---
+import AuthLayout from "../../layouts/AuthLayout.astro";
+import { createSupabaseServerInstance } from "@/db/supabase.client.ts";
+import { ContinueAsDemoButtonContainer } from "@/components/auth/ContinueAsDemoButtonContainer";
+import { LoginFormContainer } from "@/components/auth/LoginFormContainer";
+
+const supabase = createSupabaseServerInstance({
+  cookies: Astro.cookies,
+  headers: Astro.request.headers,
+});
+const {
+  data: { user },
+} = await supabase.auth.getUser();
+if (user) {
+  return Astro.redirect("/");
+}
+---
+
+<AuthLayout title="Zaloguj się" lead="Wróć do swoich fiszek lub kontynuuj w trybie demo.">
+  <LoginFormContainer client:load />
+
+  <div class="mt-6 border-t border-neutral-200 pt-6">
+    <ContinueAsDemoButtonContainer client:load />
+  </div>
+
+  <Fragment slot="footer">
+    Nie masz konta?
+    <a class="ml-1 font-medium text-primary hover:underline" href="/auth/register">
+      Zarejestruj się
+    </a>
+  </Fragment>
+</AuthLayout>
