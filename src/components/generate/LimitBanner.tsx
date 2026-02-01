@@ -1,10 +1,10 @@
 import type { GenerateApiErrorVm, GenerateLimitsVm } from "@/lib/viewmodels/generate.vm";
 
-type LimitBannerProps = {
+interface LimitBannerProps {
   limits: GenerateLimitsVm;
   error?: GenerateApiErrorVm | null;
   onDismiss?: () => void;
-};
+}
 
 export function LimitBanner({ limits, error, onDismiss }: LimitBannerProps) {
   const showBanner = limits.isGenerationBlocked || Boolean(error);

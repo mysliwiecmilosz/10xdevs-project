@@ -1,11 +1,11 @@
 import type { GenerateCardsCommand, GenerateCardsResponseDto } from "@/types";
 
-type GenerateClientError = {
+interface GenerateClientError {
   status: number;
   code?: string;
   message?: string;
   details?: unknown;
-};
+}
 
 export async function postGenerateCards(command: GenerateCardsCommand): Promise<GenerateCardsResponseDto> {
   const response = await fetch("/api/ai/generate", {

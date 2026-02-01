@@ -7,11 +7,11 @@ const MIN_PASSWORD_LENGTH = 8;
 const inputClassName =
   "min-h-[40px] w-full rounded-md border border-neutral-200 bg-white px-3 text-sm text-neutral-900 shadow-sm outline-none transition focus-visible:ring-2 focus-visible:ring-neutral-400";
 
-type LoginFormProps = {
+interface LoginFormProps {
   isSubmitting?: boolean;
   error?: { code?: string; message?: string } | null;
   onSubmit?: (payload: { email: string; password: string }) => void;
-};
+}
 
 export function LoginForm({ isSubmitting = false, error, onSubmit }: LoginFormProps) {
   const emailId = useId();

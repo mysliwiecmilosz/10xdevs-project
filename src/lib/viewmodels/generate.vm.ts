@@ -1,37 +1,37 @@
 export type GenerateRequestStatus = "idle" | "loading" | "success" | "error";
 
-export type GenerateApiErrorVm = {
+export interface GenerateApiErrorVm {
   status?: number;
   code?: string;
   message: string;
   debugDetails?: unknown;
-};
+}
 
-export type GenerateValidationVm = {
+export interface GenerateValidationVm {
   content?: { code: "too_short" | "too_long"; message: string } | null;
-};
+}
 
-export type GenerateLimitsVm = {
+export interface GenerateLimitsVm {
   remainingGenerations?: number;
   isGenerationBlocked: boolean;
   reason?: "limit_reached" | "unknown";
-};
+}
 
-export type DeckOptionVm = {
+export interface DeckOptionVm {
   value: string | null;
   label: string;
   description?: string;
-};
+}
 
-export type GenerateFormVm = {
+export interface GenerateFormVm {
   content: string;
   contentCount: number;
   deckId: string | null;
   touched: { content: boolean };
   validation: GenerateValidationVm;
-};
+}
 
-export type GenerateRequestStateVm = {
+export interface GenerateRequestStateVm {
   status: GenerateRequestStatus;
   lastResponse?: { sourceId: string; remainingGenerations: number };
-};
+}

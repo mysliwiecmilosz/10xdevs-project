@@ -1,11 +1,11 @@
 import type { DeckCreateCommand, DeckDto, ListDecksQuery, ListDecksResponseDto } from "@/types";
 
-type ApiErrorPayload = {
+interface ApiErrorPayload {
   status: number;
   code?: string;
   message?: string;
   details?: unknown;
-};
+}
 
 function toQueryString(query?: ListDecksQuery): string {
   if (!query) {

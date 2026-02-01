@@ -9,11 +9,11 @@ type DbProfile = Tables<"profiles">;
 export type CardQualityStatus = "draft" | "ok" | "good";
 export type AccountRole = "demo" | "full";
 
-export type PaginationMeta = {
+export interface PaginationMeta {
   total: number;
   page: number;
   limit: number;
-};
+}
 
 export type DeckDto = Pick<DbDeck, "id" | "name" | "description" | "created_at">;
 
@@ -32,37 +32,39 @@ export type CardDto = Pick<
   | "updated_at"
 >;
 
-export type ListDecksQuery = {
+export interface ListDecksQuery {
   page?: number;
   limit?: number;
   search?: string;
-};
+}
 
-export type ListDecksResponseDto = {
+export interface ListDecksResponseDto {
   data: DeckDto[];
   meta: PaginationMeta;
-};
+}
 
-export type GetDeckResponseDto = {
+export interface GetDeckResponseDto {
   data: DeckDto;
-};
+}
 
 export type DeckCreateCommand = Pick<TablesInsert<"decks">, "name" | "description">;
 
 export type DeckUpdateCommand = Pick<TablesUpdate<"decks">, "name" | "description">;
 
-export type ListCardsQuery = {
+export interface ListCardsQuery {
+  page?: number;
+  limit?: number;
   deck_id?: DbDeck["id"];
   source_id?: DbSource["id"];
   quality_status?: CardQualityStatus;
   tags?: string[];
-  sort?: string;
-};
+  sort?: "created_at_desc" | "created_at_asc";
+}
 
-export type ListCardsResponseDto = {
+export interface ListCardsResponseDto {
   data: CardDto[];
   meta: PaginationMeta;
-};
+}
 
 export type CardCreateCommand = Pick<
   TablesInsert<"cards">,
@@ -77,21 +79,21 @@ export type CardUpdateCommand = Pick<
   "question" | "answer" | "context" | "deck_id" | "tags" | "difficulty" | "quality_status"
 >;
 
-export type BatchUpdateCardsCommand = {
+export interface BatchUpdateCardsCommand {
   card_ids: DbCard["id"][];
   action: "update_status" | "add_tags" | "delete";
   payload: {
     quality_status?: CardQualityStatus;
     tags?: DbCard["tags"];
   };
-};
+}
 
-export type GenerateCardsCommand = {
+export interface GenerateCardsCommand {
   content: string;
   deck_id?: DbDeck["id"];
-};
+}
 
-export type GeneratedCardDto = {
+export interface GeneratedCardDto {
   id: DbCard["id"];
   // API uses front/back while database uses question/answer.
   front: DbCard["question"];
@@ -100,15 +102,15 @@ export type GeneratedCardDto = {
   difficulty: DbCard["difficulty"];
   tags: DbCard["tags"];
   quality_status: CardQualityStatus;
-};
+}
 
-export type GenerateCardsResponseDto = {
+export interface GenerateCardsResponseDto {
   source_id: DbSource["id"];
   cards: GeneratedCardDto[];
   remaining_generations: number;
-};
+}
 
-export type UserStatusDto = {
+export interface UserStatusDto {
   id: DbProfile["id"];
   role: AccountRole;
   limits: {
@@ -119,9 +121,9 @@ export type UserStatusDto = {
     daily_generations_used: number;
     daily_generations_limit: number;
   };
-};
+}
 
-export type ExportQueryCommand = {
+export interface ExportQueryCommand {
   deck_id?: DbDeck["id"];
   format: "json" | "csv";
-};
+}

@@ -1,57 +1,52 @@
-import { useEffect, useMemo, useState } from "react";
-import type { CardDto } from "@/types";
-import { getCardsBySourceId } from "@/lib/services/source-cards-client.service";
-import { deleteCard, updateCard } from "@/lib/services/cards-client.service";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import type { CardDto, ListCardsResponseDto } from "@/types";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { deleteCard, listCards, updateCard } from "@/lib/services/cards-client.service";
 
 type Status = "idle" | "loading" | "success" | "error";
 
-function getSourceIdFromLocation(): string | null {
-  if (typeof window === "undefined") return null;
-  const url = new URL(window.location.href);
-  return url.searchParams.get("source_id");
-}
-
-export function GenerateResultsView() {
-  const sourceId = useMemo(() => getSourceIdFromLocation(), []);
+export function CardsView() {
   const [status, setStatus] = useState<Status>("idle");
   const [cards, setCards] = useState<CardDto[]>([]);
   const [error, setError] = useState<string | null>(null);
+
+  const [page, setPage] = useState(1);
+  const limit = 24;
+  const [total, setTotal] = useState(0);
+
   const [editingId, setEditingId] = useState<string | null>(null);
   const [draft, setDraft] = useState<{ question: string; answer: string } | null>(null);
   const [savingId, setSavingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [deleteCandidate, setDeleteCandidate] = useState<{ id: string; question: string } | null>(null);
 
-  useEffect(() => {
-    if (!sourceId) {
+  const totalPages = useMemo(() => Math.max(1, Math.ceil(total / limit)), [total, limit]);
+
+  const load = useCallback(async () => {
+    setStatus("loading");
+    setError(null);
+    try {
+      const response: ListCardsResponseDto = await listCards({ page, limit, sort: "created_at_desc" });
+      setCards(response.data ?? []);
+      setTotal(response.meta?.total ?? 0);
+      setStatus("success");
+    } catch {
       setStatus("error");
-      setError("Brak parametru source_id w URL.");
-      return;
+      setError("Nie udało się pobrać fiszek.");
     }
+  }, [page]);
 
+  useEffect(() => {
     let isMounted = true;
-    const run = async () => {
-      setStatus("loading");
-      setError(null);
-      try {
-        const data = await getCardsBySourceId(sourceId);
-        if (!isMounted) return;
-        setCards(data);
-        setStatus("success");
-      } catch {
-        if (!isMounted) return;
-        setStatus("error");
-        setError("Nie udało się pobrać wygenerowanych fiszek.");
-      }
-    };
-
-    run();
+    (async () => {
+      if (!isMounted) return;
+      await load();
+    })();
     return () => {
       isMounted = false;
     };
-  }, [sourceId]);
+  }, [load]);
 
   const startEdit = (card: CardDto) => {
     setEditingId(card.id);
@@ -66,11 +61,9 @@ export function GenerateResultsView() {
   const saveEdit = async (cardId: string) => {
     if (!draft) return;
     setSavingId(cardId);
+    setError(null);
     try {
-      const updated = await updateCard(cardId, {
-        question: draft.question,
-        answer: draft.answer,
-      });
+      const updated = await updateCard(cardId, { question: draft.question, answer: draft.answer });
       setCards((prev) => prev.map((c) => (c.id === cardId ? updated : c)));
       cancelEdit();
     } catch {
@@ -88,9 +81,11 @@ export function GenerateResultsView() {
     if (!deleteCandidate) return;
     const cardId = deleteCandidate.id;
     setDeletingId(cardId);
+    setError(null);
     try {
       await deleteCard(cardId);
       setCards((prev) => prev.filter((c) => c.id !== cardId));
+      setTotal((prev) => Math.max(0, prev - 1));
       if (editingId === cardId) {
         cancelEdit();
       }
@@ -102,21 +97,38 @@ export function GenerateResultsView() {
     }
   };
 
+  const canPrev = page > 1 && status !== "loading";
+  const canNext = page < totalPages && status !== "loading";
+
   return (
     <main className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-10">
       <header className="space-y-2">
-        <p className="text-xs uppercase tracking-[0.2em] text-neutral-500">Generowanie fiszek</p>
-        <h1 className="text-3xl font-semibold text-neutral-900">Wyniki</h1>
-        <p className="text-sm text-neutral-600">Twoje fiszki wygenerowane z podanego źródła.</p>
+        <p className="text-xs uppercase tracking-[0.2em] text-neutral-500">Biblioteka</p>
+        <h1 className="text-3xl font-semibold text-neutral-900">Fiszki</h1>
+        <p className="text-sm text-neutral-600">Przeglądaj i edytuj swoje istniejące fiszki.</p>
       </header>
 
-      <div className="flex items-center justify-between gap-4">
-        <Button asChild variant="outline" size="sm">
-          <a href="/generate">← Wróć do generatora</a>
-        </Button>
-        <p className="text-xs text-neutral-500">
-          Źródło: <span className="font-mono">{sourceId ?? "—"}</span>
-        </p>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-2">
+          <Button asChild variant="outline" size="sm">
+            <a href="/app">← Wybór</a>
+          </Button>
+          <Button asChild size="sm">
+            <a href="/generate">Generuj nowe</a>
+          </Button>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={!canPrev}>
+            ← Poprzednia
+          </Button>
+          <p className="text-xs text-neutral-500" aria-live="polite">
+            Strona <span className="font-medium text-neutral-700">{page}</span> z{" "}
+            <span className="font-medium text-neutral-700">{totalPages}</span>
+          </p>
+          <Button variant="outline" size="sm" onClick={() => setPage((p) => p + 1)} disabled={!canNext}>
+            Następna →
+          </Button>
+        </div>
       </div>
 
       {status === "loading" ? (
@@ -125,15 +137,23 @@ export function GenerateResultsView() {
         </div>
       ) : null}
 
-      {status === "error" ? (
-        <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-sm text-red-800">{error}</div>
+      {status === "error" && error ? (
+        <div role="alert" className="rounded-xl border border-red-200 bg-red-50 p-6 text-sm text-red-800">
+          {error}
+        </div>
       ) : null}
 
       {status === "success" ? (
         <section className="space-y-4">
+          {error ? (
+            <div role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+              {error}
+            </div>
+          ) : null}
+
           {cards.length === 0 ? (
             <div className="rounded-xl border border-neutral-200 bg-white p-6 text-sm text-neutral-600">
-              Brak fiszek dla tego źródła.
+              Nie masz jeszcze żadnych fiszek. Wygeneruj pierwsze w generatorze.
             </div>
           ) : (
             <ul className="grid gap-4 md:grid-cols-2">
@@ -151,6 +171,15 @@ export function GenerateResultsView() {
                       ) : (
                         <p className="mt-1 text-sm font-medium text-neutral-900">{card.question}</p>
                       )}
+                      <p className="mt-2 text-xs text-neutral-500">
+                        Status: <span className="font-medium text-neutral-700">{card.quality_status}</span>
+                        {typeof card.difficulty === "number" ? (
+                          <>
+                            {" "}
+                            · Trudność: <span className="font-medium text-neutral-700">{card.difficulty}</span>
+                          </>
+                        ) : null}
+                      </p>
                     </div>
                     <div className="flex shrink-0 flex-col gap-2">
                       {editingId === card.id ? (
@@ -188,6 +217,7 @@ export function GenerateResultsView() {
                       )}
                     </div>
                   </div>
+
                   <div className="my-4 h-px bg-neutral-100" />
                   <p className="text-xs font-medium uppercase tracking-[0.2em] text-neutral-500">Back</p>
                   {editingId === card.id && draft ? (

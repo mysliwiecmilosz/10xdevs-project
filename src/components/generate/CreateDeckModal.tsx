@@ -2,13 +2,13 @@ import { useEffect, useId, useState, type FormEvent } from "react";
 import type { DeckCreateCommand } from "@/types";
 import { Button } from "@/components/ui/button";
 
-type CreateDeckModalProps = {
+interface CreateDeckModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSubmit: (command: DeckCreateCommand) => void;
   isSubmitting?: boolean;
   errorMessage?: string | null;
-};
+}
 
 const MAX_NAME_LENGTH = 100;
 

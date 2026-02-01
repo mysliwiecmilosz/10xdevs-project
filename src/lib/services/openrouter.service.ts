@@ -2,7 +2,7 @@ export type OpenRouterChatMessage =
   | { role: "system" | "user" | "assistant"; content: string; name?: string }
   | { role: "tool"; content: string; tool_call_id: string; name?: string };
 
-export type OpenRouterModelParams = {
+export interface OpenRouterModelParams {
   temperature?: number;
   max_tokens?: number;
   top_p?: number;
@@ -10,17 +10,17 @@ export type OpenRouterModelParams = {
   presence_penalty?: number;
   seed?: number;
   stop?: string | string[];
-};
+}
 
-export type SendChatCompletionInput = {
+export interface SendChatCompletionInput {
   userId?: string;
   model?: string;
   messages: OpenRouterChatMessage[];
   params?: OpenRouterModelParams;
   response_format?: unknown;
-};
+}
 
-export type SendChatCompletionResult = {
+export interface SendChatCompletionResult {
   id: string;
   model: string;
   content: string;
@@ -31,27 +31,27 @@ export type SendChatCompletionResult = {
     cost?: number;
   };
   requestId?: string;
-};
+}
 
-export type OpenRouterJsonSchemaResponseFormat = {
+export interface OpenRouterJsonSchemaResponseFormat {
   type: "json_schema";
   json_schema: {
     name: string;
     strict: true;
     schema: Record<string, unknown>;
   };
-};
+}
 
-export type OpenRouterStructuredSchema<T> = {
+export interface OpenRouterStructuredSchema<T> {
   response_format: OpenRouterJsonSchemaResponseFormat;
   /**
    * Runtime validation and parsing hook.
    * Keep it deterministic and side-effect free.
    */
   parse: (value: unknown) => T;
-};
+}
 
-export type OpenRouterServiceConfig = {
+export interface OpenRouterServiceConfig {
   apiKey: string;
   baseUrl?: string; // default: https://openrouter.ai/api/v1
   appReferer?: string; // HTTP-Referer
@@ -69,15 +69,15 @@ export type OpenRouterServiceConfig = {
    */
   maxMessages?: number; // default: 50
   maxMessageChars?: number; // default: 20_000
-};
+}
 
-export type OpenRouterLogger = {
+export interface OpenRouterLogger {
   info: (msg: string, meta?: Record<string, unknown>) => void;
   warn: (msg: string, meta?: Record<string, unknown>) => void;
   error: (msg: string, meta?: Record<string, unknown>) => void;
-};
+}
 
-export type OpenRouterUsageTracker = {
+export interface OpenRouterUsageTracker {
   track: (event: {
     userId?: string;
     model?: string;
@@ -87,15 +87,15 @@ export type OpenRouterUsageTracker = {
     cost?: number;
     requestId?: string;
   }) => Promise<void> | void;
-};
+}
 
-export type OpenRouterServiceDeps = {
+export interface OpenRouterServiceDeps {
   fetchImpl?: typeof fetch;
   now?: () => number;
   sleep?: (ms: number) => Promise<void>;
   logger?: OpenRouterLogger;
   usageTracker?: OpenRouterUsageTracker;
-};
+}
 
 type OpenRouterErrorCode =
   | "openrouter_config_error"
@@ -124,7 +124,7 @@ class OpenRouterError extends Error {
     this.code = params.code;
     this.status = params.status;
     this.meta = params.meta;
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+
     (this as any).cause = params.cause;
   }
 }
@@ -183,7 +183,7 @@ export class OpenRouterSchemaValidationError extends OpenRouterError {
   }
 }
 
-type OpenRouterNonStreamingResponse = {
+interface OpenRouterNonStreamingResponse {
   id?: string;
   model?: string;
   choices?: {
@@ -197,7 +197,7 @@ type OpenRouterNonStreamingResponse = {
     cost?: number;
   };
   error?: unknown;
-};
+}
 
 function safeTrimTrailingSlash(url: string): string {
   return url.endsWith("/") ? url.slice(0, -1) : url;

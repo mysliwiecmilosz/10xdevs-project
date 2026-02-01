@@ -6,11 +6,11 @@ const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const inputClassName =
   "min-h-[40px] w-full rounded-md border border-neutral-200 bg-white px-3 text-sm text-neutral-900 shadow-sm outline-none transition focus-visible:ring-2 focus-visible:ring-neutral-400";
 
-type ForgotPasswordFormProps = {
+interface ForgotPasswordFormProps {
   isSubmitting?: boolean;
   error?: { code?: string; message?: string } | null;
   onSubmit?: (payload: { email: string }) => void;
-};
+}
 
 export function ForgotPasswordForm({ isSubmitting = false, error, onSubmit }: ForgotPasswordFormProps) {
   const emailId = useId();

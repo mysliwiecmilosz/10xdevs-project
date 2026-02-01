@@ -6,11 +6,11 @@ const MIN_PASSWORD_LENGTH = 8;
 const inputClassName =
   "min-h-[40px] w-full rounded-md border border-neutral-200 bg-white px-3 text-sm text-neutral-900 shadow-sm outline-none transition focus-visible:ring-2 focus-visible:ring-neutral-400";
 
-type UpdatePasswordFormProps = {
+interface UpdatePasswordFormProps {
   isSubmitting?: boolean;
   error?: { code?: string; message?: string } | null;
   onSubmit?: (payload: { password: string }) => void;
-};
+}
 
 export function UpdatePasswordForm({ isSubmitting = false, error, onSubmit }: UpdatePasswordFormProps) {
   const passwordId = useId();

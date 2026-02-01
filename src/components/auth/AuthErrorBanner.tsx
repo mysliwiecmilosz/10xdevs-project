@@ -1,7 +1,7 @@
-type AuthError = {
+interface AuthError {
   code?: string;
   message?: string;
-};
+}
 
 const errorMessages: Record<string, string> = {
   invalid_credentials: "Nieprawidłowy email lub hasło.",
@@ -14,9 +14,9 @@ const errorMessages: Record<string, string> = {
   demo_disabled: "Tryb demo jest wyłączony. Włącz Anonymous sign-ins w Supabase Auth.",
 };
 
-type AuthErrorBannerProps = {
+interface AuthErrorBannerProps {
   error?: AuthError | null;
-};
+}
 
 export function AuthErrorBanner({ error }: AuthErrorBannerProps) {
   if (!error) {

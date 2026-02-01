@@ -1,6 +1,6 @@
 import { useId } from "react";
 
-type GenerateTextInputProps = {
+interface GenerateTextInputProps {
   value: string;
   minLength: number;
   maxLength: number;
@@ -9,7 +9,7 @@ type GenerateTextInputProps = {
   onContentChange: (next: string) => void;
   onBlur?: () => void;
   onClear?: () => void;
-};
+}
 
 export function GenerateTextInput({
   value,

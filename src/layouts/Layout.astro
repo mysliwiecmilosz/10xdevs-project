@@ -7,6 +7,7 @@ interface Props {
 
 const { title = "10x Astro Starter" } = Astro.props;
 const user = Astro.locals.user;
+const pathname = Astro.url?.pathname ?? "/";
 ---
 
 <!doctype html>
@@ -21,16 +22,50 @@ const user = Astro.locals.user;
   <body>
     {
       user ? (
-        <header class="flex items-center justify-between border-b border-neutral-200 px-6 py-4">
-          <div class="text-sm text-neutral-600">Zalogowano {user.email ? `jako ${user.email}` : "do aplikacji"}</div>
-          <form method="post" action="/api/auth/logout">
-            <button
-              type="submit"
-              class="rounded-md border border-neutral-200 px-3 py-1.5 text-sm font-medium text-neutral-700 transition hover:bg-neutral-50"
-            >
-              Wyloguj się
-            </button>
-          </form>
+        <header class="border-b border-neutral-200 bg-white px-4 py-3 sm:px-6">
+          <div class="mx-auto flex w-full max-w-5xl flex-wrap items-center justify-between gap-3">
+            <div class="flex min-w-0 items-center gap-3">
+              <a class="text-sm font-semibold text-neutral-900 hover:underline" href="/app">
+                AI Flashcards
+              </a>
+              <span class="hidden text-sm text-neutral-400 sm:inline">·</span>
+              <div class="min-w-0 truncate text-sm text-neutral-600">
+                Zalogowano {user.email ? `jako ${user.email}` : "do aplikacji"}
+              </div>
+            </div>
+
+            <nav aria-label="Nawigacja" class="flex items-center gap-2">
+              <a
+                href="/app"
+                aria-current={pathname === "/app" ? "page" : undefined}
+                class="rounded-md px-3 py-1.5 text-sm font-medium text-neutral-700 transition hover:bg-neutral-50 aria-[current=page]:bg-neutral-100 aria-[current=page]:text-neutral-900"
+              >
+                Start
+              </a>
+              <a
+                href="/generate"
+                aria-current={pathname === "/generate" || pathname.startsWith("/generate/") ? "page" : undefined}
+                class="rounded-md px-3 py-1.5 text-sm font-medium text-neutral-700 transition hover:bg-neutral-50 aria-[current=page]:bg-neutral-100 aria-[current=page]:text-neutral-900"
+              >
+                Generuj
+              </a>
+              <a
+                href="/cards"
+                aria-current={pathname === "/cards" ? "page" : undefined}
+                class="rounded-md px-3 py-1.5 text-sm font-medium text-neutral-700 transition hover:bg-neutral-50 aria-[current=page]:bg-neutral-100 aria-[current=page]:text-neutral-900"
+              >
+                Fiszki
+              </a>
+              <form method="post" action="/api/auth/logout">
+                <button
+                  type="submit"
+                  class="rounded-md border border-neutral-200 px-3 py-1.5 text-sm font-medium text-neutral-700 transition hover:bg-neutral-50"
+                >
+                  Wyloguj się
+                </button>
+              </form>
+            </nav>
+          </div>
         </header>
       ) : null
     }

@@ -1,10 +1,10 @@
 import { Button } from "@/components/ui/button";
 
-type GenerateSubmitButtonProps = {
+interface GenerateSubmitButtonProps {
   disabled: boolean;
   loading: boolean;
   label?: string;
-};
+}
 
 export function GenerateSubmitButton({ disabled, loading, label = "Generuj" }: GenerateSubmitButtonProps) {
   return (

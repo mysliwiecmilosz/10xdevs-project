@@ -17,10 +17,10 @@ import { GenerateSubmitButton } from "@/components/generate/GenerateSubmitButton
 import { GenerateTextInput } from "@/components/generate/GenerateTextInput";
 import { LimitBanner } from "@/components/generate/LimitBanner";
 
-type GenerateViewProps = {
+interface GenerateViewProps {
   initialContent?: string;
   initialDeckId?: string | null;
-};
+}
 
 const MIN_CONTENT_LENGTH = 50;
 const MAX_CONTENT_LENGTH = 100000;

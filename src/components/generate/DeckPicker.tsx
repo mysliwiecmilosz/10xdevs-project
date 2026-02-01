@@ -2,7 +2,7 @@ import { useId } from "react";
 import type { DeckOptionVm } from "@/lib/viewmodels/generate.vm";
 import { Button } from "@/components/ui/button";
 
-type DeckPickerProps = {
+interface DeckPickerProps {
   value: string | null;
   options: DeckOptionVm[];
   disabled?: boolean;
@@ -10,7 +10,7 @@ type DeckPickerProps = {
   createDisabled?: boolean;
   onChange: (deckId: string | null) => void;
   onCreateDeck: () => void;
-};
+}
 
 export function DeckPicker({
   value,

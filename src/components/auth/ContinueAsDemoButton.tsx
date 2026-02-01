@@ -1,9 +1,9 @@
 import { Button } from "@/components/ui/button";
 
-type ContinueAsDemoButtonProps = {
+interface ContinueAsDemoButtonProps {
   isSubmitting?: boolean;
   onClick?: () => void;
-};
+}
 
 export function ContinueAsDemoButton({ isSubmitting = false, onClick }: ContinueAsDemoButtonProps) {
   return (

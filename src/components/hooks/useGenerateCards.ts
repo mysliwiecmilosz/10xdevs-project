@@ -3,12 +3,12 @@ import type { GenerateCardsCommand, GenerateCardsResponseDto } from "@/types";
 import type { GenerateApiErrorVm, GenerateRequestStatus } from "@/lib/viewmodels/generate.vm";
 import { postGenerateCards } from "@/lib/services/generate-client.service";
 
-type GenerateClientError = {
+interface GenerateClientError {
   status?: number;
   code?: string;
   message?: string;
   details?: unknown;
-};
+}
 
 function mapGenerateError(error: GenerateClientError): GenerateApiErrorVm {
   const status = error.status;

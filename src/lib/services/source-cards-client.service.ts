@@ -1,11 +1,11 @@
 import type { CardDto, ListCardsResponseDto } from "@/types";
 
-type ApiErrorPayload = {
+interface ApiErrorPayload {
   status: number;
   code?: string;
   message?: string;
   details?: unknown;
-};
+}
 
 async function parseError(response: Response): Promise<ApiErrorPayload> {
   let payload: unknown = null;

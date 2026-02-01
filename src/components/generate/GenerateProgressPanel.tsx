@@ -1,11 +1,11 @@
 import type { GenerateApiErrorVm, GenerateRequestStateVm } from "@/lib/viewmodels/generate.vm";
 import { Button } from "@/components/ui/button";
 
-type GenerateProgressPanelProps = {
+interface GenerateProgressPanelProps {
   state: GenerateRequestStateVm;
   error?: GenerateApiErrorVm | null;
   onRetry?: () => void;
-};
+}
 
 export function GenerateProgressPanel({ state, error, onRetry }: GenerateProgressPanelProps) {
   if (state.status === "idle") {
