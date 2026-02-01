@@ -4,7 +4,6 @@ import { ZodError } from "zod";
 import { generateCardsCommandSchema } from "../../../lib/validators/ai-generate.schema.ts";
 import { generateCardsPipeline, toHttpError } from "../../../lib/services/ai-generation.service.ts";
 import type { AccountRole, GenerateCardsResponseDto } from "../../../types.ts";
-import { DEFAULT_USER_ID } from "../../../db/supabase.client.ts";
 
 export const prerender = false;
 
@@ -31,18 +30,22 @@ export const POST: APIRoute = async (context) => {
 
     const parsed = generateCardsCommandSchema.parse(rawBody);
 
-    // TEMP: auth will be handled later; for now we always use DEFAULT_USER_ID.
-    const userId = DEFAULT_USER_ID;
-    if (!userId || userId.trim() === "###" || !isUuid(userId)) {
-      return json(500, {
-        error: {
-          code: "default_user_not_configured",
-          message:
-            "DEFAULT_USER_ID is not configured. Set DEFAULT_USER_ID to an existing public.profiles.id UUID.",
-        },
-      });
+    const userId = context.locals.user?.id;
+    if (!userId || !isUuid(userId)) {
+      return json(401, { error: { code: "unauthorized", message: "User is not authenticated." } });
     }
-    const role: AccountRole = "demo";
+
+    const { data: profile, error: profileError } = await context.locals.supabase
+      .from("profiles")
+      .select("account_role")
+      .eq("id", userId)
+      .maybeSingle();
+
+    if (profileError) {
+      return json(500, { error: { code: "profile_lookup_failed", message: "Failed to load user profile." } });
+    }
+
+    const role = (profile?.account_role ?? "demo") as AccountRole;
 
     const result: GenerateCardsResponseDto = await generateCardsPipeline({
       supabase: context.locals.supabase,
@@ -82,4 +85,3 @@ export const POST: APIRoute = async (context) => {
     return json(http.status, { error: { code: http.code, message: http.message } });
   }
 };
-

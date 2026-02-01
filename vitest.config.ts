@@ -18,6 +18,10 @@ export default defineConfig({
     include: ["tests/**/*.{test,spec}.{ts,tsx}"],
     css: false,
     reporters: process.env.CI ? ["default"] : ["default"],
+    coverage: {
+      provider: "v8",
+      reportsDirectory: "./coverage/unit",
+      reporter: ["text", "lcov", "json-summary"],
+    },
   },
 });
-

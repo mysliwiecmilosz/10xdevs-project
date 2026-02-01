@@ -424,4 +424,3 @@ Poniżej widoki MVP wraz z trasami i elementami. Ścieżki są opisane na poziom
 - **Błąd sieci / 500**: retry, komunikat, zachowanie stanu selekcji/batch (o ile możliwe), brak utraty draftów.
 - **Usunięcie decka**: karty przechodzą do „Bez decka”; UI pokazuje toast i link do presetu „Oczekujące”.
 - **Duże listy (wydajność)**: paginacja, skeletony, ograniczenie odświeżeń, brak fetch na każde wpisanie (debounce dla filtrów).
-

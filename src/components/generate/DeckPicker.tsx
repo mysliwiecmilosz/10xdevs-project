@@ -45,18 +45,11 @@ export function DeckPicker({
             </option>
           ))}
         </select>
-        <Button
-          type="button"
-          variant="outline"
-          onClick={onCreateDeck}
-          disabled={disabled || createDisabled}
-        >
+        <Button type="button" variant="outline" onClick={onCreateDeck} disabled={disabled || createDisabled}>
           Utwórz deck
         </Button>
       </div>
-      {helperText ? (
-        <p className="text-xs text-neutral-500">{helperText}</p>
-      ) : null}
+      {helperText ? <p className="text-xs text-neutral-500">{helperText}</p> : null}
     </div>
   );
 }

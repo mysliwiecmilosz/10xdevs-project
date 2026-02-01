@@ -5,10 +5,7 @@ type ContinueAsDemoButtonProps = {
   onClick?: () => void;
 };
 
-export function ContinueAsDemoButton({
-  isSubmitting = false,
-  onClick,
-}: ContinueAsDemoButtonProps) {
+export function ContinueAsDemoButton({ isSubmitting = false, onClick }: ContinueAsDemoButtonProps) {
   return (
     <div className="space-y-2">
       <Button type="button" variant="outline" className="w-full" onClick={onClick} disabled={isSubmitting}>

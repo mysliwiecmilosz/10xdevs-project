@@ -109,4 +109,3 @@ export async function logAuthKpiEvent(params: {
     console.error("[kpi_events] auth insert failed", error);
   }
 }
-

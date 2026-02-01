@@ -1,7 +1,6 @@
 import type { APIRoute } from "astro";
 import { z, ZodError } from "zod";
 
-import { DEFAULT_USER_ID } from "../../db/supabase.client.ts";
 import type { DeckDto, ListDecksResponseDto } from "../../types.ts";
 
 export const prerender = false;
@@ -38,20 +37,12 @@ const createDeckSchema = z.object({
 
 export const GET: APIRoute = async (context) => {
   try {
-    const userId = DEFAULT_USER_ID;
-    if (!userId || userId.trim() === "###" || !isUuid(userId)) {
-      return json(500, {
-        error: {
-          code: "default_user_not_configured",
-          message:
-            "DEFAULT_USER_ID is not configured. Set DEFAULT_USER_ID to an existing public.profiles.id UUID.",
-        },
-      });
+    const userId = context.locals.user?.id;
+    if (!userId || !isUuid(userId)) {
+      return json(401, { error: { code: "unauthorized", message: "User is not authenticated." } });
     }
 
-    const parsed = listDecksQuerySchema.parse(
-      Object.fromEntries(new URL(context.request.url).searchParams.entries()),
-    );
+    const parsed = listDecksQuerySchema.parse(Object.fromEntries(new URL(context.request.url).searchParams.entries()));
     const page = parsed.page;
     const limit = parsed.limit;
     const search = parsed.search?.trim();
@@ -102,15 +93,9 @@ export const GET: APIRoute = async (context) => {
 
 export const POST: APIRoute = async (context) => {
   try {
-    const userId = DEFAULT_USER_ID;
-    if (!userId || userId.trim() === "###" || !isUuid(userId)) {
-      return json(500, {
-        error: {
-          code: "default_user_not_configured",
-          message:
-            "DEFAULT_USER_ID is not configured. Set DEFAULT_USER_ID to an existing public.profiles.id UUID.",
-        },
-      });
+    const userId = context.locals.user?.id;
+    if (!userId || !isUuid(userId)) {
+      return json(401, { error: { code: "unauthorized", message: "User is not authenticated." } });
     }
 
     let rawBody: unknown;
@@ -151,4 +136,3 @@ export const POST: APIRoute = async (context) => {
     return json(500, { error: { code: "internal_error", message: "Internal server error." } });
   }
 };
-

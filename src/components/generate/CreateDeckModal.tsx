@@ -12,13 +12,7 @@ type CreateDeckModalProps = {
 
 const MAX_NAME_LENGTH = 100;
 
-export function CreateDeckModal({
-  open,
-  onOpenChange,
-  onSubmit,
-  isSubmitting,
-  errorMessage,
-}: CreateDeckModalProps) {
+export function CreateDeckModal({ open, onOpenChange, onSubmit, isSubmitting, errorMessage }: CreateDeckModalProps) {
   const nameId = useId();
   const descriptionId = useId();
   const [name, setName] = useState("");
@@ -64,16 +58,10 @@ export function CreateDeckModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
-      <div
-        role="dialog"
-        aria-modal="true"
-        className="w-full max-w-lg rounded-lg bg-white p-6 shadow-lg"
-      >
+      <div role="dialog" aria-modal="true" className="w-full max-w-lg rounded-lg bg-white p-6 shadow-lg">
         <header className="space-y-1">
           <h2 className="text-lg font-semibold">Utwórz nowy deck</h2>
-          <p className="text-sm text-neutral-500">
-            Dodaj nazwę i opcjonalny opis, aby od razu przypisać fiszki.
-          </p>
+          <p className="text-sm text-neutral-500">Dodaj nazwę i opcjonalny opis, aby od razu przypisać fiszki.</p>
         </header>
         <form className="mt-4 space-y-4" onSubmit={handleSubmit}>
           <div className="space-y-2">

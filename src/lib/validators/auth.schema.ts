@@ -13,4 +13,3 @@ export const registerCommandSchema = z.object({
 });
 
 export type RegisterCommand = z.infer<typeof registerCommandSchema>;
-

@@ -50,4 +50,3 @@ export async function deleteCard(cardId: string): Promise<void> {
 
   throw await parseError(response);
 }
-

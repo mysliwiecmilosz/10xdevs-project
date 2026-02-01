@@ -1,11 +1,6 @@
 import type { SupabaseClient } from "../../db/supabase.client.ts";
 import type { Json } from "../../db/database.types.ts";
-import type {
-  AccountRole,
-  CardQualityStatus,
-  GenerateCardsResponseDto,
-  GeneratedCardDto,
-} from "../../types.ts";
+import type { AccountRole, CardQualityStatus, GenerateCardsResponseDto, GeneratedCardDto } from "../../types.ts";
 import crypto from "node:crypto";
 import { z } from "zod";
 import { getDailyGenerationLimit } from "../config/limits.ts";
@@ -164,16 +159,14 @@ async function checkAndIncrementDailyLimit(params: {
 
   // NOTE: This is not perfectly atomic under concurrency without an RPC/DB function.
   // The composite PK (user_id, date) makes it safe to upsert one row per day.
-  const { error: upsertError } = await supabase
-    .from("user_usage_stats")
-    .upsert(
-      {
-        user_id: userId,
-        date,
-        generation_count: used + 1,
-      },
-      { onConflict: "user_id,date" },
-    );
+  const { error: upsertError } = await supabase.from("user_usage_stats").upsert(
+    {
+      user_id: userId,
+      date,
+      generation_count: used + 1,
+    },
+    { onConflict: "user_id,date" }
+  );
 
   if (upsertError) {
     throw new HttpError(500, "usage_stats_write_failed", "Failed to update usage stats.");
@@ -252,7 +245,7 @@ async function generateCardsWithAI(content: string): Promise<z.infer<typeof aiRe
           max_tokens: 1200,
         },
       },
-      generateCardsStructuredSchema,
+      generateCardsStructuredSchema
     );
 
     return data;
@@ -412,4 +405,3 @@ export function toHttpError(err: unknown): HttpError {
   if (err instanceof HttpError) return err;
   return new HttpError(500, "internal_error", "Internal server error.");
 }
-

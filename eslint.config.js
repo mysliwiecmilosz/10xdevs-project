@@ -20,6 +20,44 @@ const baseConfig = tseslint.config({
   rules: {
     "no-console": "warn",
     "no-unused-vars": "off",
+    // Project reality: we already use `type` heavily and `any` in a few edge places.
+    // Keep these as warnings (or off) to avoid blocking CI on style-only refactors.
+    "@typescript-eslint/consistent-type-definitions": "warn",
+    "@typescript-eslint/no-explicit-any": "warn",
+  },
+});
+
+const nodeFilesConfig = tseslint.config({
+  files: ["**/*.{js,cjs,mjs}"],
+  languageOptions: {
+    globals: {
+      console: "readonly",
+      process: "readonly",
+      Buffer: "readonly",
+      setTimeout: "readonly",
+      clearTimeout: "readonly",
+      setInterval: "readonly",
+      clearInterval: "readonly",
+    },
+  },
+});
+
+const nodeScriptConfig = tseslint.config({
+  files: ["scripts/**/*.{js,cjs,mjs}", "playwright.config.ts", "e2e/**/*.{js,ts}"],
+  languageOptions: {
+    globals: {
+      console: "readonly",
+      process: "readonly",
+      Buffer: "readonly",
+    },
+  },
+});
+
+// Generated types: keep lint pragmatic (do not enforce stylistic rules here).
+const generatedTypesConfig = tseslint.config({
+  files: ["src/db/database.types.ts"],
+  rules: {
+    "@typescript-eslint/consistent-indexed-object-style": "off",
   },
 });
 
@@ -56,11 +94,23 @@ const reactConfig = tseslint.config({
   },
 });
 
+// Must be LAST so it overrides eslint-plugin-prettier defaults.
+const prettierRuleOverrides = tseslint.config({
+  rules: {
+    // Ensure Prettier checks don't fail on Windows CRLF.
+    "prettier/prettier": ["error", { endOfLine: "auto" }],
+  },
+});
+
 export default tseslint.config(
   includeIgnoreFile(gitignorePath),
   baseConfig,
+  nodeFilesConfig,
+  nodeScriptConfig,
+  generatedTypesConfig,
   jsxA11yConfig,
   reactConfig,
   eslintPluginAstro.configs["flat/recommended"],
-  eslintPluginPrettier
+  eslintPluginPrettier,
+  prettierRuleOverrides
 );

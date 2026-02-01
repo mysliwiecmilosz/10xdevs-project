@@ -37,11 +37,7 @@ export function RegisterForm({ isSubmitting = false, error, successMessage, onSu
         ? `Hasło musi mieć co najmniej ${MIN_PASSWORD_LENGTH} znaków.`
         : null;
   const confirmError =
-    touched && !confirm
-      ? "Powtórz hasło."
-      : touched && confirm !== password
-        ? "Hasła muszą być takie same."
-        : null;
+    touched && !confirm ? "Powtórz hasło." : touched && confirm !== password ? "Hasła muszą być takie same." : null;
   const hasErrors = Boolean(emailError || passwordError || confirmError);
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
@@ -135,9 +131,7 @@ export function RegisterForm({ isSubmitting = false, error, successMessage, onSu
         ) : null}
       </div>
 
-      <p className="text-xs text-neutral-500">
-        Po rejestracji wyślemy link potwierdzający. Sprawdź skrzynkę email.
-      </p>
+      <p className="text-xs text-neutral-500">Po rejestracji wyślemy link potwierdzający. Sprawdź skrzynkę email.</p>
 
       {successMessage ? (
         <div

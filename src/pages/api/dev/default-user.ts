@@ -17,9 +17,6 @@ export const GET: APIRoute = async () => {
   return json(200, {
     default_user_id: configured ? raw : null,
     configured,
-    hint: configured
-      ? null
-      : "Set DEFAULT_USER_ID in .env to an existing public.profiles.id UUID (dev-only shortcut).",
+    hint: configured ? null : "Set DEFAULT_USER_ID in .env to an existing public.profiles.id UUID (dev-only shortcut).",
   });
 };
-

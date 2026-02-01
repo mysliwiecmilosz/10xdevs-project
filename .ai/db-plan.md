@@ -5,8 +5,10 @@ Ten dokument zawiera kompleksowy schemat bazy danych dla projektu AI Flashcards,
 ## 1. Lista tabel
 
 ### `profiles`
+
 Przechowuje rozszerzone dane użytkowników powiązane z systemem auth Supabase.
 This table is managed by Supabase Auth.
+
 - `id`: `uuid` (PRIMARY KEY, REFERENCES auth.users)
 - `email`: `text` (NOT NULL)
 - `account_role`: `text` (CHECK: role IN ('demo', 'full'), DEFAULT 'demo')
@@ -14,25 +16,31 @@ This table is managed by Supabase Auth.
 - `created_at`: `timestamp with time zone` (DEFAULT now())
 
 ### `sources`
+
 Przechowuje oryginalne teksty źródłowe wklejone przez użytkowników.
+
 - `id`: `uuid` (PRIMARY KEY, DEFAULT gen_random_uuid())
 - `user_id`: `uuid` (NOT NULL, REFERENCES profiles(id) ON DELETE CASCADE)
 - `title`: `text` (NOT NULL)
-- `content`: `text` (NOT NULL) - *Zalecany limit techniczny: 100k znaków*
+- `content`: `text` (NOT NULL) - _Zalecany limit techniczny: 100k znaków_
 - `character_count`: `integer` (NOT NULL)
 - `created_at`: `timestamp with time zone` (DEFAULT now())
 
 ### `decks`
+
 Kontenery na fiszki (talie).
+
 - `id`: `uuid` (PRIMARY KEY, DEFAULT gen_random_uuid())
 - `user_id`: `uuid` (NOT NULL, REFERENCES profiles(id) ON DELETE CASCADE)
 - `name`: `text` (NOT NULL)
 - `description`: `text`
 - `created_at`: `timestamp with time zone` (DEFAULT now())
-- *Constraint: UNIQUE (user_id, name)*
+- _Constraint: UNIQUE (user_id, name)_
 
 ### `cards`
+
 Główna tabela przechowująca fiszki.
+
 - `id`: `uuid` (PRIMARY KEY, DEFAULT gen_random_uuid())
 - `user_id`: `uuid` (NOT NULL, REFERENCES profiles(id) ON DELETE CASCADE)
 - `deck_id`: `uuid` (NULLABLE, REFERENCES decks(id) ON DELETE SET NULL)
@@ -44,24 +52,28 @@ Główna tabela przechowująca fiszki.
 - `difficulty`: `smallint` (CHECK: difficulty BETWEEN 1 AND 5, DEFAULT 3)
 - `quality_status`: `text` (CHECK: quality_status IN ('draft', 'ok', 'good'), DEFAULT 'draft')
 - `is_manual_override`: `boolean` (DEFAULT false)
-- `external_metadata`: `jsonb` (DEFAULT '{}') - *Dla integracji SRS*
+- `external_metadata`: `jsonb` (DEFAULT '{}') - _Dla integracji SRS_
 - `last_synced_at`: `timestamp with time zone`
 - `created_at`: `timestamp with time zone` (DEFAULT now())
 - `updated_at`: `timestamp with time zone` (DEFAULT now())
 
 ### `user_usage_stats`
+
 Tabela do śledzenia dziennych limitów generacji AI.
+
 - `user_id`: `uuid` (NOT NULL, REFERENCES profiles(id) ON DELETE CASCADE)
 - `date`: `date` (NOT NULL, DEFAULT CURRENT_DATE)
 - `generation_count`: `integer` (DEFAULT 0)
 - `PRIMARY KEY (user_id, date)`
 
 ### `kpi_events`
+
 Rejestr zdarzeń analitycznych.
+
 - `id`: `bigint` (PRIMARY KEY GENERATED ALWAYS AS IDENTITY)
 - `user_id`: `uuid` (NOT NULL, REFERENCES profiles(id) ON DELETE CASCADE)
-- `event_type`: `text` (NOT NULL) - *np. 'session_start', 'ai_generation', 'card_edit', 'card_accept', 'card_delete'*
-- `metadata`: `jsonb` (DEFAULT '{}') - *Dodatkowe dane o zdarzeniu*
+- `event_type`: `text` (NOT NULL) - _np. 'session_start', 'ai_generation', 'card_edit', 'card_accept', 'card_delete'_
+- `metadata`: `jsonb` (DEFAULT '{}') - _Dodatkowe dane o zdarzeniu_
 - `created_at`: `timestamp with time zone` (DEFAULT now())
 
 ## 2. Relacje między tabelami
@@ -95,7 +107,7 @@ Wszystkie tabele mają włączone Row Level Security (RLS).
   - ALL: `auth.uid() = user_id`
 - **user_usage_stats**:
   - SELECT: `auth.uid() = user_id`
-  - *Modyfikacja tylko przez funkcje serwerowe (RPC) lub triggery.*
+  - _Modyfikacja tylko przez funkcje serwerowe (RPC) lub triggery._
 - **kpi_events**:
   - INSERT: `auth.uid() = user_id`
   - SELECT: Brak dostępu dla użytkownika (tylko dla adminów/analityki).

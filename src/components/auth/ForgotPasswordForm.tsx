@@ -12,11 +12,7 @@ type ForgotPasswordFormProps = {
   onSubmit?: (payload: { email: string }) => void;
 };
 
-export function ForgotPasswordForm({
-  isSubmitting = false,
-  error,
-  onSubmit,
-}: ForgotPasswordFormProps) {
+export function ForgotPasswordForm({ isSubmitting = false, error, onSubmit }: ForgotPasswordFormProps) {
   const emailId = useId();
   const [email, setEmail] = useState("");
   const [touched, setTouched] = useState(false);

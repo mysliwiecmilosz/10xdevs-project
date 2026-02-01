@@ -1,9 +1,4 @@
-import type {
-  DeckCreateCommand,
-  DeckDto,
-  ListDecksQuery,
-  ListDecksResponseDto,
-} from "@/types";
+import type { DeckCreateCommand, DeckDto, ListDecksQuery, ListDecksResponseDto } from "@/types";
 
 type ApiErrorPayload = {
   status: number;
@@ -43,9 +38,7 @@ async function parseError(response: Response): Promise<ApiErrorPayload> {
   };
 }
 
-export async function getDecks(
-  query?: ListDecksQuery,
-): Promise<ListDecksResponseDto> {
+export async function getDecks(query?: ListDecksQuery): Promise<ListDecksResponseDto> {
   const response = await fetch(`/api/decks${toQueryString(query)}`);
 
   if (response.ok) {
@@ -55,9 +48,7 @@ export async function getDecks(
   throw await parseError(response);
 }
 
-export async function createDeck(
-  command: DeckCreateCommand,
-): Promise<DeckDto> {
+export async function createDeck(command: DeckCreateCommand): Promise<DeckDto> {
   const response = await fetch("/api/decks", {
     method: "POST",
     headers: { "Content-Type": "application/json" },

@@ -1,9 +1,15 @@
 # Dokument wymagań produktu (PRD) - AI Flashcards
+
 ## 1. Przegląd produktu
+
 - Empatyczna aplikacja webowa, która automatycznie przekształca dowolny tekst w gotowe fiszki edukacyjne wspierane podpowiedziami AI (pytanie, odpowiedź, kontekst, tagi, poziom trudności) i prostym trybem manualnej edycji. Projekt obejmuje backend utrzymujący model sesji, statystyki i limity (fiszki, decki, generacje) oraz synchronizację z istniejącym algorytmem spaced repetition przez eksport danych. MVP realizowane jest przez interdyscyplinarny zespół (AI, frontend, backend, produkt/UX) w 10-tygodniowym planie: faza danych, implementacja głównej funkcjonalności, integracja SRS i testy KPI.
+
 ## 2. Problem użytkownika
+
 - Wysokiej jakości fiszki wymagają ręcznego dzielenia materiału, formułowania pytań i odpowiedzi oraz uporządkowania treści. Proces ten jest zbyt czasochłonny i zniechęca do stosowania spaced repetition, mimo że metoda ta przynosi mierzalne korzyści w nauce. Użytkownik potrzebuje szybkiego narzędzia, które przy minimalnym wysiłku wygeneruje sensowne fiszki z dowolnego tekstu, jasno pokaże, co jeszcze do zrobienia i pozwoli dopracować gotowe propozycje AI.
+
 ## 3. Wymagania funkcjonalne
+
 1. Generowanie fiszek z ciągłego tekstu (kopiuj-wklej) z uwzględnieniem nagłówków, list i akapitów, gdzie model AI proponuje pytanie, odpowiedź, kontekst, tagi i poziom trudności oraz status jakości (Szkic/OK/Dobre).
 2. Manualny edytor do korygowania i uzupełniania propozycji AI w trybie inline z szybkim dostępem do akcji batchowych (zatwierdź, odrzuć, zmień tagi/trudność) oraz możliwość tworzenia zupełnie nowych fiszek.
 3. Przeglądanie, filtrowanie (tagi, poziom trudności, status), edycja i usuwanie fiszek z widoku listy, przy zachowaniu informacji o źródle (AI/manualne) i możliwością nadpisania tagów/trudności bezpośrednio z listy.
@@ -14,13 +20,17 @@
 8. Integracja (wysyłka eksportu + proste API) z istniejącym algorytmem powtórek, umożliwiająca synchronizację statusów SRS.
 9. Zbieranie KPI za pomocą backendowych eventów (sesja, generacja, edycja, akceptacja), aby mierzyć time-to-value, retencję i odsetek akceptowanych fiszek.
 10. System sugerowania tagów i poziomu trudności przez AI z możliwością natychmiastowej edycji przez użytkownika (dropdown/chips) oraz informacją o sugerowanych wartościach.
+
 ## 4. Granice produktu
+
 - MVP nie zawiera własnego zaawansowanego algorytmu powtórek typu SuperMemo czy Anki; integracja rozpoczyna się od eksportu danych i prostego API synchronizacji, bez wbudowanego SRS.
 - Nie będzie importu wielu formatów (PDF, DOCX, itp.), ograniczamy się do tekstu kopiowanego przez użytkownika.
 - Brak współdzielenia zestawów między użytkownikami oraz integracji z zewnętrznymi platformami edukacyjnymi.
 - Brak aplikacji mobilnej w MVP (tylko wersja webowa). Limity kontowe rozróżniają demo i pełne konto, ale wszystkie działania odbywają się w jednej aplikacji bez natywnych klient&oacute;w.
 - Backend egzekwuje limity (2 000 fiszek, 50 decków, liczba generacji) i KPI, bez konieczności budowy osobnych narzędzi do zarządzania tymi limitami.
+
 ## 5. Historyjki użytkowników
+
 - ID: US-001
 - Tytuł: Bezpieczne logowanie i rozróżnienie demo vs pełne konto
 - Opis: Jako użytkownik chcę się bezpiecznie uwierzytelnić i zobaczyć, czy działam w trybie demo, czy mam pełny dostęp, żeby wiedzieć jakie limity mnie obowiązują i zapewnić poufność moich fiszek.
@@ -86,7 +96,9 @@
   1. Każdy event zawiera typ akcji, ID użytkownika lub sesji, źródło fiszki oraz znacznik czasu.
   2. Dane są dostępne do analiz i można obliczyć KPIs (np. % AI-zaakceptowanych fiszek vs liczba generacji).
   3. Backend przesyła eventy także dla zmian limitów oraz wyświetla je jako część raportów dla zespołu produktowego.
+
 ## 6. Metryki sukcesu
+
 - 75% fiszek wygenerowanych przez AI jest akceptowanych przez użytkowników (status OK lub Dobre).
 - 75% wszystkich fiszek tworzą użytkownicy, wykorzystując AI jako punkt startowy (ilość akcji „zaakceptuj AI propozycję” vs liczba manualnych fiszek bez AI).
 - Time-to-value: użytkownik widzi pierwszą zaakceptowaną fiszkę w ramach sesji w mniej niż 5 minut.

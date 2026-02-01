@@ -1,9 +1,6 @@
 import { useCallback, useState } from "react";
 import type { GenerateCardsCommand, GenerateCardsResponseDto } from "@/types";
-import type {
-  GenerateApiErrorVm,
-  GenerateRequestStatus,
-} from "@/lib/viewmodels/generate.vm";
+import type { GenerateApiErrorVm, GenerateRequestStatus } from "@/lib/viewmodels/generate.vm";
 import { postGenerateCards } from "@/lib/services/generate-client.service";
 
 type GenerateClientError = {

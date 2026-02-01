@@ -7,4 +7,3 @@ export const generateCardsCommandSchema = z.object({
 });
 
 export type GenerateCardsCommandInput = z.infer<typeof generateCardsCommandSchema>;
-

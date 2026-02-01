@@ -1,7 +1,4 @@
-import type {
-  GenerateApiErrorVm,
-  GenerateRequestStateVm,
-} from "@/lib/viewmodels/generate.vm";
+import type { GenerateApiErrorVm, GenerateRequestStateVm } from "@/lib/viewmodels/generate.vm";
 import { Button } from "@/components/ui/button";
 
 type GenerateProgressPanelProps = {
@@ -10,11 +7,7 @@ type GenerateProgressPanelProps = {
   onRetry?: () => void;
 };
 
-export function GenerateProgressPanel({
-  state,
-  error,
-  onRetry,
-}: GenerateProgressPanelProps) {
+export function GenerateProgressPanel({ state, error, onRetry }: GenerateProgressPanelProps) {
   if (state.status === "idle") {
     return (
       <div className="rounded-md border border-neutral-200 bg-white p-4 text-sm text-neutral-600">

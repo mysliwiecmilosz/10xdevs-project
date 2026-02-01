@@ -20,6 +20,7 @@ export class AuthLoginPage {
 
   async goto() {
     await this.page.goto("/auth/login");
+    await this.page.waitForLoadState("networkidle");
+    await this.page.waitForTimeout(200);
   }
 }
-

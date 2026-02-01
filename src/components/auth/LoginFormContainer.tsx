@@ -42,4 +42,3 @@ export function LoginFormContainer() {
 
   return <LoginForm isSubmitting={isSubmitting} error={error} onSubmit={handleSubmit} />;
 }
-

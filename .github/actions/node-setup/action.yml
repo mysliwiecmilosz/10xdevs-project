@@ -1,0 +1,21 @@
+name: "Node setup (npm ci)"
+description: "Setup Node from .nvmrc and install deps via npm ci"
+
+inputs:
+  node-version-file:
+    description: "Path to node version file (e.g. .nvmrc)"
+    required: false
+    default: ".nvmrc"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Setup Node
+      uses: actions/setup-node@v6
+      with:
+        node-version-file: ${{ inputs.node-version-file }}
+        cache: npm
+
+    - name: Install dependencies
+      shell: bash
+      run: npm ci

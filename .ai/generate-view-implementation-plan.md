@@ -1,16 +1,20 @@
 # Plan implementacji widoku Generuj
 
 ## 1. Przegląd
+
 Widok **Generuj** (`/generate`) służy do wklejenia tekstu źródłowego, opcjonalnego wyboru/utworzenia decka, uruchomienia generacji fiszek przez AI (`POST /api/ai/generate`) oraz przejścia do widoku wyników generacji (filtrowanych po `source_id`). Widok musi jasno komunikować limity (w szczególności dzienny limit generacji), zachowywać draft tekstu przy błędach/nawigacji i nie ujawniać szczegółów błędów serwera.
 
 ## 2. Routing widoku
+
 - **Ścieżka**: `/generate`
 - **Plik routingu (Astro)**: `src/pages/generate.astro`
   - Renderuje layout aplikacji (jeśli istnieje) i montuje komponent React widoku (np. `GenerateView`) jako island (`client:load` lub `client:visible`).
 - **Nawigacja po sukcesie**: przekierowanie do `/generate/results?source_id=<uuid>` (zgodnie z UI planem).
 
 ## 3. Struktura komponentów
+
 Główne komponenty widoku (React):
+
 - `GenerateView` (kontener, orkiestracja stanu i API)
 - `LimitBanner` (komunikaty limitów/429 + prewencyjne blokady)
 - `GenerateTextInput` (textarea + licznik znaków + autosave)
@@ -35,6 +39,7 @@ GeneratePage (Astro)
 ## 4. Szczegóły komponentów
 
 ### GenerateView
+
 - **Opis komponentu**: Kontener widoku. Składa UI, trzyma stan formularza i integruje API: pobranie decków (jeśli dostępne), pobranie statusu/limitów użytkownika (jeśli dostępne) oraz wywołanie generacji.
 - **Główne elementy**:
   - `main` / `section` jako wrapper treści
@@ -67,6 +72,7 @@ GeneratePage (Astro)
     - `initialDeckId?: string | null`
 
 ### LimitBanner
+
 - **Opis komponentu**: Spójny banner/alert do komunikacji limitów i błędów limitowych (szczególnie `429 Too Many Requests`). Powinien wspierać tryb prewencyjny (“nie możesz teraz generować”) i tryb reaktywny (odpowiedź 429 z API).
 - **Główne elementy**:
   - `div`/`section` z rolą `alert` (dla krytycznych blokad)
@@ -85,6 +91,7 @@ GeneratePage (Astro)
   - `onDismiss?: () => void`
 
 ### GenerateTextInput
+
 - **Opis komponentu**: Tekst wejściowy do wklejenia materiału. Pokazuje licznik znaków i walidację. Musi autosave’ować draft do storage i odtwarzać po odświeżeniu/nawigacji.
 - **Główne elementy**:
   - `label` + `textarea` (z opisem “min 50, max 100k”)
@@ -110,6 +117,7 @@ GeneratePage (Astro)
   - `onClear?: () => void`
 
 ### DeckPicker
+
 - **Opis komponentu**: Wybór decka dla generowanych fiszek lub opcja “Bez decka (Oczekujące)”. Powinien umożliwiać otwarcie modala tworzenia nowego decka.
 - **Główne elementy**:
   - `label`
@@ -133,6 +141,7 @@ GeneratePage (Astro)
   - `onCreateDeck: () => void`
 
 ### CreateDeckModal
+
 - **Opis komponentu**: Modal do tworzenia decka “w locie” bez opuszczania widoku i bez utraty draftu tekstu.
 - **Główne elementy**:
   - `Dialog` (shadcn/ui) z zarządzaniem fokusem
@@ -156,6 +165,7 @@ GeneratePage (Astro)
   - `onCreated: (deck: DeckDto) => void`
 
 ### GenerateSubmitButton
+
 - **Opis komponentu**: Przycisk submitu generacji, uwzględniający walidację i limity.
 - **Główne elementy**:
   - `button type="submit"` (shadcn `Button`)
@@ -175,6 +185,7 @@ GeneratePage (Astro)
   - `label?: string` (domyślnie “Generuj”)
 
 ### GenerateProgressPanel
+
 - **Opis komponentu**: Prezentuje stan procesu: idle/loading/success/error. W praktyce, przy sukcesie widok nawiguję do wyników; panel może pokazać krótki stan przejściowy (“Gotowe, przekierowuję…”).
 - **Główne elementy**:
   - loader + komunikat w trakcie
@@ -192,9 +203,11 @@ GeneratePage (Astro)
   - `onRetry?: () => void`
 
 ## 5. Typy
+
 Widok powinien opierać się o istniejące DTO z `src/types.ts` oraz zdefiniować lekkie ViewModel’e (VM) dla UI.
 
 ### DTO (z istniejących typów)
+
 - `GenerateCardsCommand`
   - `content: string`
   - `deck_id?: string` (uuid) — w UI reprezentowane jako `string | null` i mapowane do `undefined` gdy `null`
@@ -215,50 +228,53 @@ Widok powinien opierać się o istniejące DTO z `src/types.ts` oraz zdefiniowa�
 - `UserStatusDto` (dla limitów; jeśli endpoint jest dostępny globalnie)
 
 ### Nowe typy ViewModel (do dodania w frontendzie)
+
 Zalecane miejsce: `src/lib/viewmodels/generate.vm.ts` (lub analogicznie).
 
 - `type GenerateRequestStatus = "idle" | "loading" | "success" | "error"`
 
 - `type GenerateApiErrorVm = {
-    status?: number;
-    code?: string;
-    message: string;            // tekst przyjazny dla użytkownika
-    debugDetails?: unknown;     // opcjonalnie tylko w dev (np. pełne body)
-  }`
+  status?: number;
+  code?: string;
+  message: string;            // tekst przyjazny dla użytkownika
+  debugDetails?: unknown;     // opcjonalnie tylko w dev (np. pełne body)
+}`
 
 - `type GenerateValidationVm = {
-    content?: { code: "too_short" | "too_long"; message: string } | null;
-  }`
+  content?: { code: "too_short" | "too_long"; message: string } | null;
+}`
 
 - `type GenerateLimitsVm = {
-    remainingGenerations?: number;  // undefined gdy nieznane
-    isGenerationBlocked: boolean;   // wynikowa flaga do UI
-    reason?: "limit_reached" | "unknown";
-  }`
+  remainingGenerations?: number;  // undefined gdy nieznane
+  isGenerationBlocked: boolean;   // wynikowa flaga do UI
+  reason?: "limit_reached" | "unknown";
+}`
 
 - `type DeckOptionVm = {
-    value: string | null;       // null = Bez decka
-    label: string;
-    description?: string;
-  }`
+  value: string | null;       // null = Bez decka
+  label: string;
+  description?: string;
+}`
 
 - `type GenerateFormVm = {
-    content: string;
-    contentCount: number;
-    deckId: string | null;
-    touched: { content: boolean };
-    validation: GenerateValidationVm;
-  }`
+  content: string;
+  contentCount: number;
+  deckId: string | null;
+  touched: { content: boolean };
+  validation: GenerateValidationVm;
+}`
 
 - `type GenerateRequestStateVm = {
-    status: GenerateRequestStatus;
-    lastResponse?: { sourceId: string; remainingGenerations: number };
-  }`
+  status: GenerateRequestStatus;
+  lastResponse?: { sourceId: string; remainingGenerations: number };
+}`
 
 ## 6. Zarządzanie stanem
+
 Stan lokalny w `GenerateView` + 1–2 custom hooki dla porządku i testowalności.
 
 ### Zmienne stanu (minimalny zestaw)
+
 - `content: string`
 - `deckId: string | null`
 - `touchedContent: boolean` (czy pokazać walidację)
@@ -273,6 +289,7 @@ Stan lokalny w `GenerateView` + 1–2 custom hooki dla porządku i testowalnośc
 - `isCreateDeckOpen: boolean`
 
 ### Custom hooki (zalecane)
+
 - `useGenerateDraft(storageKey: string)`
   - **Cel**: autosave `content` do `localStorage`/`sessionStorage` i odtwarzanie przy mount.
   - **API**: `{ value, setValue, clear }`
@@ -289,6 +306,7 @@ Stan lokalny w `GenerateView` + 1–2 custom hooki dla porządku i testowalnośc
 ## 7. Integracja API
 
 ### POST `/api/ai/generate`
+
 - **Request DTO**: `GenerateCardsCommand`
   - `content`: string (min 50, max 100k)
   - `deck_id?`: uuid (opcjonalnie)
@@ -309,20 +327,24 @@ Stan lokalny w `GenerateView` + 1–2 custom hooki dla porządku i testowalnośc
     - nie gub draftu (`content` zostaje)
 
 ### GET `/api/decks` (dla `DeckPicker`)
+
 - **Cel**: lista decków do wyboru.
 - **Akcje frontendowe**: pobierz przy mount, pokaż loading/empty state, umożliw “Utwórz deck”.
 
 ### POST `/api/decks` (dla `CreateDeckModal`)
+
 - **Request DTO**: `DeckCreateCommand` (`name`, `description?`)
 - **Akcje frontendowe**:
   - po sukcesie: dodaj deck do listy i ustaw go jako wybrany
   - po błędzie limitu decków: pokaż `LimitBanner` lub inline błąd w modalu
 
 ### GET `/api/me/status` (opcjonalne, jeśli istnieje globalnie)
+
 - **Cel**: uzyskać rolę demo/full i limity; wyświetlić `remaining_generations` (z `daily_generations_limit - daily_generations_used`).
 - **Akcje frontendowe**: pobierz w App Shell i przekaż przez kontekst/store; w widoku Generuj korzystaj z tej wartości do prewencyjnej blokady.
 
 ## 8. Interakcje użytkownika
+
 - **Wklejenie/edycja tekstu**:
   - licznik znaków aktualizuje się na bieżąco
   - autosave draftu do storage
@@ -345,7 +367,9 @@ Stan lokalny w `GenerateView` + 1–2 custom hooki dla porządku i testowalnośc
   - dla 429: wyraźny banner limitu + blokada generacji
 
 ## 9. Warunki i walidacja
+
 Warunki wynikające z API planu i implementacji endpointu:
+
 - **Body musi być JSON**: UI zawsze wysyła JSON (`Content-Type: application/json`).
 - **`content`**:
   - min 50 znaków
@@ -369,7 +393,9 @@ Warunki wynikające z API planu i implementacji endpointu:
   - opcja “Pokaż szczegóły” wyłącznie w dev (lub za flagą) i bez wrażliwych danych
 
 ## 10. Obsługa błędów
+
 Scenariusze i sugerowana obsługa:
+
 - **400 validation_error** (Zod):
   - UI: pokaż “Niepoprawne dane formularza” + wskaż pole `content` jeśli dotyczy
   - zachowaj draft i fokus na polu z błędem
@@ -390,6 +416,7 @@ Scenariusze i sugerowana obsługa:
   - loguj w konsoli tylko w dev
 
 ## 11. Kroki implementacji
+
 1. Utwórz routing widoku:
    - dodaj `src/pages/generate.astro`, osadź `GenerateView` jako komponent React.
 2. Dodaj komponenty widoku w `src/components/generate/`:
@@ -418,9 +445,11 @@ Scenariusze i sugerowana obsługa:
    - focus na pierwszym błędzie po submit
    - blokada double submit.
 10. Dodaj stany UI:
-   - skeleton/loading dla decków
-   - empty state gdy brak decków
-   - loading state dla generacji.
-11. (Opcjonalnie) Dodaj test plan manualny:
-   - przypadki: <50, >100k, 201, 400, 429, network error, create deck, draft persistence.
 
+- skeleton/loading dla decków
+- empty state gdy brak decków
+- loading state dla generacji.
+
+11. (Opcjonalnie) Dodaj test plan manualny:
+
+- przypadki: <50, >100k, 201, 400, 429, network error, create deck, draft persistence.

@@ -34,4 +34,3 @@ export async function getCardsBySourceId(sourceId: string): Promise<CardDto[]> {
 
   throw await parseError(response);
 }
-

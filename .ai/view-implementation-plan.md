@@ -26,9 +26,11 @@
 # API Endpoint Implementation Plan: POST /api/ai/generate
 
 ## 1. Przegląd punktu końcowego
+
 Endpoint generuje fiszki z podanego tekstu przy użyciu AI. Sprawdza limity użytkownika, zapisuje źródło, generuje i zapisuje karty jako szkice (`quality_status='draft'`), loguje KPI i zwraca wygenerowane karty wraz z pozostałym limitem dziennym.
 
 ## 2. Szczegóły żądania
+
 - Metoda HTTP: `POST`
 - Struktura URL: `/api/ai/generate`
 - Parametry:
@@ -43,12 +45,14 @@ Endpoint generuje fiszki z podanego tekstu przy użyciu AI. Sprawdza limity uży
   ```
 
 ## 3. Wykorzystywane typy
+
 - `GenerateCardsCommand`
 - `GenerateCardsResponseDto`
 - `GeneratedCardDto`
 - `CardQualityStatus`
 
 ## 3. Szczegóły odpowiedzi
+
 - Kod sukcesu: `201 Created`
 - Response Body:
   ```json
@@ -70,6 +74,7 @@ Endpoint generuje fiszki z podanego tekstu przy użyciu AI. Sprawdza limity uży
   ```
 
 ## 4. Przepływ danych
+
 1. Middleware uwierzytelnia użytkownika (Supabase Auth, JWT).
 2. Handler odczytuje `content` i opcjonalny `deck_id`.
 3. Walidacja Zod: długość `content`, UUID `deck_id`.
@@ -85,6 +90,7 @@ Endpoint generuje fiszki z podanego tekstu przy użyciu AI. Sprawdza limity uży
 5. Handler mapuje `question/answer` → `front/back` i zwraca `GenerateCardsResponseDto`.
 
 ## 5. Względy bezpieczeństwa
+
 - Wymagane uwierzytelnienie (JWT) i RLS (`auth.uid()`).
 - Walidacja `deck_id` pod kątem własności użytkownika.
 - Ochrona kluczy OpenRouter po stronie backendu.
@@ -92,6 +98,7 @@ Endpoint generuje fiszki z podanego tekstu przy użyciu AI. Sprawdza limity uży
 - Sanitizacja i limity długości wejścia (DoS/abuse).
 
 ## 6. Obsługa błędów
+
 - `400 Bad Request`: niepoprawny format body, `content` zbyt krótki/długi, niepoprawny UUID.
 - `401 Unauthorized`: brak/nieprawidłowy JWT.
 - `404 Not Found`: deck nie istnieje lub nie należy do użytkownika.
@@ -100,12 +107,14 @@ Endpoint generuje fiszki z podanego tekstu przy użyciu AI. Sprawdza limity uży
 - Logowanie: error log + opcjonalny KPI `ai_generation_failed` z metadanymi (brak dedykowanej tabeli błędów).
 
 ## 7. Wydajność
+
 - Stosować pojedyncze inserty bulk dla kart.
 - Unikać nadmiarowych zapytań (pobrać profil i stats w jednej transakcji).
 - Indeksy: `cards(user_id)`, `cards(source_id)`, `user_usage_stats(date)` wspierają zapytania.
 - Zadbaj o timeout i retry politykę dla OpenRouter.
 
 ## 8. Kroki implementacji
+
 1. Utwórz Zod schema dla `GenerateCardsCommand`.
 2. Dodaj endpoint `src/pages/api/ai/generate.ts` z `export const prerender = false`.
 3. Użyj `context.locals.supabase` do zapytań (zgodnie z regułami backend).

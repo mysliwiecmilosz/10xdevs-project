@@ -6,11 +6,7 @@ type GenerateSubmitButtonProps = {
   label?: string;
 };
 
-export function GenerateSubmitButton({
-  disabled,
-  loading,
-  label = "Generuj",
-}: GenerateSubmitButtonProps) {
+export function GenerateSubmitButton({ disabled, loading, label = "Generuj" }: GenerateSubmitButtonProps) {
   return (
     <Button type="submit" disabled={disabled} aria-busy={loading}>
       {loading ? "Generuję..." : label}

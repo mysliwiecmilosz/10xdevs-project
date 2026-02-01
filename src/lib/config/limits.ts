@@ -13,4 +13,3 @@ export function getDailyGenerationLimit(role: AccountRole): number {
   }
   return DAILY_GENERATION_LIMITS[role];
 }
-

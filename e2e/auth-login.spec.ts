@@ -12,5 +12,14 @@ test.describe("auth/login", () => {
     await expect(login.submitButton).toBeVisible();
     await expect(login.demoButton).toBeVisible();
   });
-});
 
+  test("shows validation errors on submit", async ({ page }) => {
+    const login = new AuthLoginPage(page);
+    await login.goto();
+
+    await login.submitButton.click();
+
+    await expect(page.getByText("Email jest wymagany.")).toBeVisible();
+    await expect(page.getByText("Hasło jest wymagane.")).toBeVisible();
+  });
+});

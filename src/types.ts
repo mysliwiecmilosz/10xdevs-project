@@ -74,13 +74,7 @@ export type CardsCreateCommand = CardCreateCommand | CardCreateCommand[];
 
 export type CardUpdateCommand = Pick<
   TablesUpdate<"cards">,
-  | "question"
-  | "answer"
-  | "context"
-  | "deck_id"
-  | "tags"
-  | "difficulty"
-  | "quality_status"
+  "question" | "answer" | "context" | "deck_id" | "tags" | "difficulty" | "quality_status"
 >;
 
 export type BatchUpdateCardsCommand = {

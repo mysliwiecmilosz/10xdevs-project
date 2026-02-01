@@ -20,6 +20,7 @@ Ten dokument jest bezpośrednio powiązany z:
 - **US-007**: egzekwowanie limitów zależnych od demo/full (wymaga wiarygodnego `account_role`)
 
 Pozostałe User Stories (US-002..US-009) wymagają jedynie, aby:
+
 - istniał stabilny `user_id` (dla danych per-user),
 - backend mógł rozróżnić demo/full (dla limitów),
 - UI miało endpoint “status/limity” (np. `/api/me/status`).
@@ -31,6 +32,7 @@ Pozostałe User Stories (US-002..US-009) wymagają jedynie, aby:
 ### 1.1. Mapa routów i stron (Astro)
 
 Aktualnie istnieją m.in.:
+
 - `src/pages/index.astro` (Welcome),
 - `src/pages/generate.astro` (osadza React `GenerateView`),
 - `src/pages/generate/results.astro` (wyniki generacji),
@@ -87,6 +89,7 @@ Proponowany podział:
 ### 1.3. Rozdzielenie odpowiedzialności: Astro vs React (client-side)
 
 #### Astro (strony i SSR)
+
 Astro odpowiada za:
 
 - routing i metadane (title, opisy),
@@ -97,6 +100,7 @@ Astro odpowiada za:
 - dostarczenie “initial state” do React (np. `initialSession`, `initialStatus`) jako propsy/JSON w HTML (bez tokenów!).
 
 #### React (formularze i interakcje)
+
 React odpowiada za:
 
 - UX formularzy auth:
@@ -159,20 +163,24 @@ PRD (US-001) mówi o “dwuskładnikowej walidacji (np. hasło + token w demo tr
 - **Demo (uprościć)**: brak hasła, tylko “token sesji” = **Supabase anonymous session** (anon user). To jest “token-only” tryb demo.
 
 Opcjonalnie (po MVP), jeśli wymagamy stricte 2FA:
+
 - można włączyć **Supabase MFA (TOTP)** dla kont full, jako dodatkowy krok po loginie.
 
 #### Login
+
 - email:
   - required, poprawny format
 - hasło:
   - required, min 8 (lub zgodnie z polityką Supabase)
 
 Komunikaty:
+
 - `invalid_credentials`: “Nieprawidłowy email lub hasło.”
 - `email_not_confirmed`: “Potwierdź adres email w wiadomości, którą wysłaliśmy.”
 - `rate_limited`: “Zbyt wiele prób. Spróbuj ponownie za chwilę.”
 
 #### Rejestracja
+
 - email:
   - required, format email
 - hasło:
@@ -182,16 +190,19 @@ Komunikaty:
   - musi się zgadzać
 
 Komunikaty:
+
 - `user_already_exists`: “Konto dla tego emaila już istnieje.”
 - `weak_password`: “Hasło jest zbyt słabe. Użyj co najmniej 8 znaków…”
 - `signup_requires_confirmation`: “Sprawdź pocztę i potwierdź adres email.”
 
 #### Forgot password
+
 - email required, format email
 - zawsze komunikat neutralny po submit:
   - “Jeśli konto istnieje, wyślemy link resetujący.”
 
 #### Update password
+
 - nowe hasło + potwierdzenie
 - błędy:
   - `recovery_link_expired`: “Link wygasł. Poproś o nowy.”
@@ -199,6 +210,7 @@ Komunikaty:
 ### 1.6. Najważniejsze scenariusze użytkownika
 
 #### S1: “Continue as demo” (szybkie wejście)
+
 1. Użytkownik wchodzi na `/login`.
 2. Klik “Kontynuuj jako demo”.
 3. Tworzymy **anonimową sesję Supabase** (demo).
@@ -206,6 +218,7 @@ Komunikaty:
 5. UI pobiera `GET /api/me/status` i pokazuje badge “Demo” + limity.
 
 #### S2: Rejestracja pełna
+
 1. `/register` → submit
 2. Jeśli wymagamy confirm email:
    - pokaż ekran “Sprawdź pocztę”
@@ -213,21 +226,25 @@ Komunikaty:
 3. Profil w `public.profiles` tworzy trigger `handle_new_user`.
 
 #### S3: Logowanie
+
 1. `/login` → submit
 2. Sukces → redirect do `returnTo` albo `/generate`
 
 #### S4: Odzyskiwanie hasła
+
 1. `/forgot-password` → submit (zawsze neutralny komunikat)
 2. Link z maila → `/auth/callback` (ustanawia sesję recovery)
 3. Redirect do `/update-password`
 4. Zapis nowego hasła → redirect do `/login` lub od razu do `/generate` (preferowane: do `/generate` jeśli sesja jest aktywna)
 
 #### S5: Wylogowanie
+
 1. Klik “Wyloguj” w `UserMenu`
 2. Backend czyści sesję cookie
 3. Redirect do `/login`
 
 #### S6: Sesja wygasła w trakcie pracy
+
 - Globalny handler 401:
   - zachowuje drafty Generuj (`sessionStorage/localStorage` tylko dla draftu treści, nie tokenów),
   - przenosi na `/login?returnTo=...`,
@@ -249,6 +266,7 @@ Zasada bezpieczeństwa: `returnTo` musi być **relative path** w obrębie aplika
 ### 2.1. Zasada nadrzędna: kompatybilność z obecnym API
 
 Aktualnie API routes używają:
+
 - `context.locals.supabase` = globalny klient z kluczem `SUPABASE_SERVICE_ROLE_KEY`,
 - `DEFAULT_USER_ID` jako tymczasowego “userId”.
 
@@ -276,6 +294,7 @@ Docelowo middleware powinno przygotować:
   - `isAuthenticated` / `isDemo`.
 
 Middleware powinno też:
+
 - odświeżać sesję (jeśli Supabase to wspiera w SSR),
 - ustawiać/zachowywać cookies w odpowiedzi.
 
@@ -355,9 +374,11 @@ To endpoint krytyczny dla UI: App Shell i `LimitBanner` mają od niego zależeć
 #### 2.3.3. Aktualizacja istniejących endpointów zasobów
 
 Wszystkie endpointy, które dziś robią:
+
 - `const userId = DEFAULT_USER_ID; ...`
 
 Docelowo przechodzą na:
+
 - `const userId = context.locals.user?.id` (albo `auth.uid()` przez RLS),
 - jeśli `userId` brak:
   - **401** (w produkcji),
@@ -368,6 +389,7 @@ Ważne: logika limitów (demo vs full) powinna brać rolę z `profiles.account_r
 ### 2.4. Mechanizm walidacji danych wejściowych
 
 Standard:
+
 - Zod na wejściu endpointów (`400 validation_error` + `details`),
 - osobne schemy dla:
   - `LoginCommandSchema`,
@@ -377,6 +399,7 @@ Standard:
   - oraz istniejące (np. `generateCardsCommandSchema`).
 
 Zasady walidacji:
+
 - normalizacja: `trim()`, `toLowerCase()` dla email,
 - nie zwracamy w errorach danych wrażliwych,
 - błędy Supabase mapujemy na stałe `error.code`.
@@ -396,6 +419,7 @@ Ujednolicony kształt błędu (już występuje w API):
 ```
 
 Zasady:
+
 - `401 unauthorized`: brak sesji / brak użytkownika,
 - `403 forbidden`: brak dostępu (zwykle RLS),
 - `400 validation_error`: Zod,
@@ -403,6 +427,7 @@ Zasady:
 - `500 internal_error`: nieoczekiwane.
 
 Dodatkowa rekomendacja (cookie-based auth): minimalna ochrona przed CSRF dla endpointów mutujących:
+
 - sprawdzanie `Origin`/`Host` (jeśli obecne) i odrzucanie żądań spoza domeny,
 - `sameSite=lax` na cookies,
 - w przyszłości (jeśli zajdzie potrzeba): token CSRF (double submit) dla wrażliwych akcji.
@@ -412,6 +437,7 @@ DEV-mode może zwracać dodatkowe `details` (jak `/api/ai/generate` robi teraz),
 ### 2.6. Aktualizacja renderowania SSR wybranych stron (Astro + `astro.config.mjs`)
 
 `astro.config.mjs` ma `output: "server"` i adapter Node, więc:
+
 - strony `.astro` mogą być SSR,
 - middleware działa na każde żądanie,
 - API routes mają `prerender=false`.
@@ -438,11 +464,13 @@ Zmiany SSR, które są wymagane przez auth:
 ### 3.1. Model kont i role (demo vs full)
 
 W schemacie DB istnieje:
+
 - `public.profiles.account_role` z check: `('demo','full')`,
 - RLS dla `anon` i `authenticated`,
 - trigger `public.handle_new_user` tworzący profile dla każdego `auth.users`.
 
 Interpretacja wymagań PRD:
+
 - **demo**: użytkownik może korzystać z aplikacji z ograniczeniami (niższe limity),
 - **full**: konto z pełnymi limitami i trwałością.
 
@@ -472,6 +500,7 @@ Rekomendowane rozwiązanie (konkretne, w duchu Postgres/Supabase):
   - (analogicznie dla innych pól, które user ma móc zmieniać)
 
 Alternatywa:
+
 - trigger `BEFORE UPDATE` na `public.profiles`, który odrzuca zmianę `account_role` jeśli `auth.role()` ∈ {`anon`,`authenticated`} i zmiana nie pochodzi z service role.
 
 Bez tego rozróżnienie demo/full nie jest wiarygodne.
@@ -481,6 +510,7 @@ Bez tego rozróżnienie demo/full nie jest wiarygodne.
 Wymóg z UI planu: **cookie httpOnly**, brak tokenów w localStorage.
 
 Docelowy mechanizm:
+
 - sesja Supabase jest utrzymywana w cookie (`httpOnly`, `secure` w prod, `sameSite=lax`),
 - middleware Astro tworzy klienta Supabase na request i potrafi odświeżać sesję,
 - React nie ma dostępu do tokenów, ale może:
@@ -538,6 +568,7 @@ Proponowane kontrakty (spójne ze stylem obecnych API):
 ### 3.6. KPI i audyt zdarzeń auth
 
 Zgodnie z PRD (US-009) warto logować zdarzenia (przynajmniej):
+
 - `session_start` (pierwsze wejście po ustanowieniu sesji),
 - `login`,
 - `logout`,
@@ -546,6 +577,7 @@ Zgodnie z PRD (US-009) warto logować zdarzenia (przynajmniej):
 - `password_reset_completed`.
 
 W `kpi_events.metadata` można trzymać:
+
 - `account_role`,
 - `method` (demo/password),
 - `returnTo`,
@@ -559,4 +591,3 @@ W `kpi_events.metadata` można trzymać:
 - **Backend**: dodajemy warstwę `/api/auth/*`, a istniejące endpointy przechodzą z `DEFAULT_USER_ID` na userId z sesji (z trybem kompatybilnym w DEV).
 - **Auth**: Supabase Auth; demo jako anonymous session; full jako email+password; sesja w cookie httpOnly + SSR integration w middleware.
 - **Bezpieczeństwo**: konieczne zablokowanie samodzielnej zmiany `profiles.account_role` przez użytkownika (inaczej demo/full jest podatne na eskalację).
-

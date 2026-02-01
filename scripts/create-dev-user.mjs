@@ -56,7 +56,7 @@ const { error: profileErr } = await supabaseService.from("profiles").upsert(
     email,
     account_role: "demo",
   },
-  { onConflict: "id" },
+  { onConflict: "id" }
 );
 
 if (profileErr) {
@@ -66,4 +66,3 @@ if (profileErr) {
 
 // Print only the user id (so it can be copied into DEFAULT_USER_ID).
 process.stdout.write(userId);
-

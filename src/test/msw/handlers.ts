@@ -11,4 +11,3 @@ export const handlers = [
     return HttpResponse.json(response, { status: 200 });
   }),
 ];
-

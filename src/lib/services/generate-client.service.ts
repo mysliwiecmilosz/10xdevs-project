@@ -7,9 +7,7 @@ type GenerateClientError = {
   details?: unknown;
 };
 
-export async function postGenerateCards(
-  command: GenerateCardsCommand,
-): Promise<GenerateCardsResponseDto> {
+export async function postGenerateCards(command: GenerateCardsCommand): Promise<GenerateCardsResponseDto> {
   const response = await fetch("/api/ai/generate", {
     method: "POST",
     headers: { "Content-Type": "application/json" },

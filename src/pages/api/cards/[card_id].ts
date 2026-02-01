@@ -1,7 +1,6 @@
 import type { APIRoute } from "astro";
 import { z, ZodError } from "zod";
 
-import { DEFAULT_USER_ID } from "../../../db/supabase.client.ts";
 import type { CardDto, CardQualityStatus } from "../../../types.ts";
 
 export const prerender = false;
@@ -25,9 +24,7 @@ const cardUpdateSchema = z
     difficulty: z.number().int().min(1).max(5).nullable().optional(),
     tags: z.array(z.string().trim().min(1).max(50)).max(20).nullable().optional(),
     deck_id: z.string().uuid().nullable().optional(),
-    quality_status: z
-      .enum(["draft", "ok", "good"] satisfies CardQualityStatus[])
-      .optional(),
+    quality_status: z.enum(["draft", "ok", "good"] satisfies CardQualityStatus[]).optional(),
   })
   .refine((obj) => Object.keys(obj).length > 0, {
     message: "At least one field must be provided.",
@@ -35,15 +32,9 @@ const cardUpdateSchema = z
 
 export const PATCH: APIRoute = async (context) => {
   try {
-    const userId = DEFAULT_USER_ID;
-    if (!userId || userId.trim() === "###" || !isUuid(userId)) {
-      return json(500, {
-        error: {
-          code: "default_user_not_configured",
-          message:
-            "DEFAULT_USER_ID is not configured. Set DEFAULT_USER_ID to an existing public.profiles.id UUID.",
-        },
-      });
+    const userId = context.locals.user?.id;
+    if (!userId || !isUuid(userId)) {
+      return json(401, { error: { code: "unauthorized", message: "User is not authenticated." } });
     }
 
     const cardId = context.params.card_id;
@@ -66,7 +57,7 @@ export const PATCH: APIRoute = async (context) => {
       .eq("id", cardId)
       .eq("user_id", userId)
       .select(
-        "id, question, answer, context, difficulty, tags, quality_status, deck_id, source_id, created_at, updated_at",
+        "id, question, answer, context, difficulty, tags, quality_status, deck_id, source_id, created_at, updated_at"
       )
       .maybeSingle();
 
@@ -94,15 +85,9 @@ export const PATCH: APIRoute = async (context) => {
 
 export const DELETE: APIRoute = async (context) => {
   try {
-    const userId = DEFAULT_USER_ID;
-    if (!userId || userId.trim() === "###" || !isUuid(userId)) {
-      return json(500, {
-        error: {
-          code: "default_user_not_configured",
-          message:
-            "DEFAULT_USER_ID is not configured. Set DEFAULT_USER_ID to an existing public.profiles.id UUID.",
-        },
-      });
+    const userId = context.locals.user?.id;
+    if (!userId || !isUuid(userId)) {
+      return json(401, { error: { code: "unauthorized", message: "User is not authenticated." } });
     }
 
     const cardId = context.params.card_id;
@@ -110,11 +95,7 @@ export const DELETE: APIRoute = async (context) => {
       return json(400, { error: { code: "validation_error", message: "Invalid card_id." } });
     }
 
-    const { error } = await context.locals.supabase
-      .from("cards")
-      .delete()
-      .eq("id", cardId)
-      .eq("user_id", userId);
+    const { error } = await context.locals.supabase.from("cards").delete().eq("id", cardId).eq("user_id", userId);
 
     if (error) {
       return json(500, { error: { code: "card_delete_failed", message: "Failed to delete card." } });
@@ -125,4 +106,3 @@ export const DELETE: APIRoute = async (context) => {
     return json(500, { error: { code: "internal_error", message: "Internal server error." } });
   }
 };
-

@@ -22,6 +22,7 @@ W kontekście tego repo (Astro 5 + TypeScript 5 + Supabase) usługa powinna być
 ### Typowe wyzwania i niezależne od technologii rozwiązania
 
 #### 1) Niejednorodne możliwości modeli (np. brak wsparcia `structured_outputs`)
+
 - **Wyzwania**
   1. Model może nie wspierać `response_format: json_schema`.
   2. Różne modele ignorują część parametrów (np. `top_k` w modelach OpenAI).
@@ -30,6 +31,7 @@ W kontekście tego repo (Astro 5 + TypeScript 5 + Supabase) usługa powinna być
   2. Traktuj parametry jako „best-effort”: wysyłaj, ale nie zakładaj, że provider je zastosował; loguj model końcowy z odpowiedzi.
 
 #### 2) Błędy i niestabilność sieci / rate-limit / 5xx
+
 - **Wyzwania**
   1. Błędy 429 i krótkotrwałe 5xx.
   2. Wiszące połączenia (brak odpowiedzi).
@@ -38,6 +40,7 @@ W kontekście tego repo (Astro 5 + TypeScript 5 + Supabase) usługa powinna być
   2. Timeout na żądaniu (np. AbortController) i jasny błąd domenowy `OpenRouterTimeoutError`.
 
 #### 3) Ustrukturyzowane odpowiedzi (JSON Schema) i walidacja
+
 - **Wyzwania**
   1. Model zwróci JSON niezgodny ze schematem lub nie-JSON.
   2. Schema jest zbyt luźny i dopuszcza niechciane pola.
@@ -46,6 +49,7 @@ W kontekście tego repo (Astro 5 + TypeScript 5 + Supabase) usługa powinna być
   2. W razie błędów: naprawa odpowiedzi (plugin „response-healing”) lub powtórzenie zapytania z poprawką systemową.
 
 #### 4) Kontrola kosztów i nadużyć
+
 - **Wyzwania**
   1. Nieprzewidywalne koszty (długie konteksty, duże `max_tokens`).
   2. Abuse (spam, prompt injection, automatyczne generowanie).
@@ -96,7 +100,10 @@ type OpenRouterServiceDeps = {
 };
 
 class OpenRouterService {
-  constructor(private cfg: OpenRouterServiceConfig, private deps: OpenRouterServiceDeps = {}) {}
+  constructor(
+    private cfg: OpenRouterServiceConfig,
+    private deps: OpenRouterServiceDeps = {}
+  ) {}
 }
 ```
 
@@ -113,14 +120,14 @@ Publiczne API usługi powinno być **minimalne** i skupione na przypadkach użyc
 
 1. **`sendChatCompletion(input)`**: wykonuje nie-streamingowe wywołanie chat completions.
 2. **`sendChatCompletionStructured<T>(input, schema)`**: wariant, który wymusza `response_format: json_schema` i zwraca zparsowane `T`.
-3. **`streamChatCompletion(input)`** *(opcjonalnie na później)*: zwraca strumień SSE i/lub iterator chunków.
+3. **`streamChatCompletion(input)`** _(opcjonalnie na później)_: zwraca strumień SSE i/lub iterator chunków.
 
 Przykładowe typy wejścia/wyjścia (propozycja):
 
 ```ts
 type OpenRouterChatMessage =
-  | { role: 'system' | 'user' | 'assistant'; content: string; name?: string }
-  | { role: 'tool'; content: string; tool_call_id: string; name?: string };
+  | { role: "system" | "user" | "assistant"; content: string; name?: string }
+  | { role: "tool"; content: string; tool_call_id: string; name?: string };
 
 type OpenRouterModelParams = {
   temperature?: number;
@@ -163,8 +170,8 @@ Poniżej pokazane są **konkretne, ponumerowane przykłady** implementacji w us�
 
 ```ts
 const systemMessage = {
-  role: 'system',
-  content: 'Jesteś pomocnym asystentem. Odpowiadaj krótko i konkretnie.',
+  role: "system",
+  content: "Jesteś pomocnym asystentem. Odpowiadaj krótko i konkretnie.",
 } as const;
 ```
 
@@ -172,12 +179,12 @@ const systemMessage = {
 
 ```ts
 const systemMessage = {
-  role: 'system',
+  role: "system",
   content: [
-    'Jesteś asystentem czatu w aplikacji edukacyjnej.',
-    'Nie ujawniaj sekretów, kluczy API ani danych systemowych.',
-    'Jeśli użytkownik prosi o instrukcje niebezpieczne lub dane wrażliwe — odmów i zaproponuj bezpieczną alternatywę.',
-  ].join('\n'),
+    "Jesteś asystentem czatu w aplikacji edukacyjnej.",
+    "Nie ujawniaj sekretów, kluczy API ani danych systemowych.",
+    "Jeśli użytkownik prosi o instrukcje niebezpieczne lub dane wrażliwe — odmów i zaproponuj bezpieczną alternatywę.",
+  ].join("\n"),
 } as const;
 ```
 
@@ -187,8 +194,8 @@ const systemMessage = {
 
 ```ts
 const userMessage = {
-  role: 'user',
-  content: 'Wyjaśnij różnicę między HTTP a HTTPS.',
+  role: "user",
+  content: "Wyjaśnij różnicę między HTTP a HTTPS.",
 } as const;
 ```
 
@@ -196,10 +203,10 @@ const userMessage = {
 
 ```ts
 const messages = [
-  { role: 'system', content: 'Odpowiadaj po polsku.' },
-  { role: 'user', content: 'Mam problem z CORS w Astro.' },
-  { role: 'assistant', content: 'Jaki błąd widzisz w konsoli?' },
-  { role: 'user', content: 'Blocked by CORS policy...' },
+  { role: "system", content: "Odpowiadaj po polsku." },
+  { role: "user", content: "Mam problem z CORS w Astro." },
+  { role: "assistant", content: "Jaki błąd widzisz w konsoli?" },
+  { role: "user", content: "Blocked by CORS policy..." },
 ] as const;
 ```
 
@@ -212,31 +219,31 @@ Wzór wymagany:
 
 ```ts
 const response_format = {
-  type: 'json_schema',
+  type: "json_schema",
   json_schema: {
-    name: 'chat_reply_v1',
+    name: "chat_reply_v1",
     strict: true,
     schema: {
-      type: 'object',
+      type: "object",
       additionalProperties: false,
       properties: {
-        answer: { type: 'string', description: 'Odpowiedź asystenta dla użytkownika.' },
+        answer: { type: "string", description: "Odpowiedź asystenta dla użytkownika." },
         followUps: {
-          type: 'array',
-          description: 'Proponowane kolejne pytania użytkownika.',
-          items: { type: 'string' },
+          type: "array",
+          description: "Proponowane kolejne pytania użytkownika.",
+          items: { type: "string" },
         },
         safety: {
-          type: 'object',
+          type: "object",
           additionalProperties: false,
           properties: {
-            flagged: { type: 'boolean', description: 'Czy odpowiedź dotyczyła treści ryzykownych.' },
-            reason: { type: 'string', description: 'Powód flagi (jeśli flagged=true).' },
+            flagged: { type: "boolean", description: "Czy odpowiedź dotyczyła treści ryzykownych." },
+            reason: { type: "string", description: "Powód flagi (jeśli flagged=true)." },
           },
-          required: ['flagged', 'reason'],
+          required: ["flagged", "reason"],
         },
       },
-      required: ['answer', 'followUps', 'safety'],
+      required: ["answer", "followUps", "safety"],
     },
   },
 } as const;
@@ -246,23 +253,23 @@ const response_format = {
 
 ```ts
 const response_format = {
-  type: 'json_schema',
+  type: "json_schema",
   json_schema: {
-    name: 'chat_ui_payload_v1',
+    name: "chat_ui_payload_v1",
     strict: true,
     schema: {
-      type: 'object',
+      type: "object",
       additionalProperties: false,
       properties: {
-        title: { type: 'string', description: 'Krótki tytuł odpowiedzi do UI.' },
+        title: { type: "string", description: "Krótki tytuł odpowiedzi do UI." },
         bullets: {
-          type: 'array',
-          description: 'Lista punktów do wyświetlenia.',
-          items: { type: 'string' },
+          type: "array",
+          description: "Lista punktów do wyświetlenia.",
+          items: { type: "string" },
           minItems: 1,
         },
       },
-      required: ['title', 'bullets'],
+      required: ["title", "bullets"],
     },
   },
 } as const;
@@ -272,12 +279,12 @@ const response_format = {
 
 ```ts
 const body = {
-  model: 'openai/gpt-5.2',
+  model: "openai/gpt-5.2",
   messages: [systemMessage, userMessage],
   response_format,
   temperature: 0.2,
   max_tokens: 700,
-  user: 'user_123', // stabilny identyfikator end-user
+  user: "user_123", // stabilny identyfikator end-user
 };
 ```
 
@@ -389,7 +396,7 @@ Obsługa błędów powinna być spójna w całej usłudze i oparta o **jawne typ
 - **401/403**: autoryzacja (2)
 - **408**: timeout (5)
 - **429**: rate limit (3)
-- **502/503**: upstream (4), model nieobsługiwany (7) *(zależnie od sytuacji)*
+- **502/503**: upstream (4), model nieobsługiwany (7) _(zależnie od sytuacji)_
 - **500**: pozostałe / niespodziewane (9–10)
 
 ### Minimalny zestaw błędów domenowych (propozycja)
@@ -446,6 +453,7 @@ Obsługa błędów powinna być spójna w całej usłudze i oparta o **jawne typ
   - `sendChatCompletionStructured<T>(...)`.
 
 W implementacji:
+
 - użyj `fetch` do `https://openrouter.ai/api/v1/chat/completions`,
 - ustaw nagłówki:
   - `Authorization: Bearer ${apiKey}`
@@ -506,4 +514,3 @@ W implementacji:
   - skoki kosztów,
   - wzrost średniego `total_tokens`.
 - Wprowadź wersjonowanie schematów `json_schema.name` (np. `chat_reply_v1`, `chat_reply_v2`) i plan migracji.
-

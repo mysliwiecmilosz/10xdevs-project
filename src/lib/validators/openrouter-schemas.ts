@@ -1,8 +1,5 @@
 import { z } from "zod";
-import type {
-  OpenRouterJsonSchemaResponseFormat,
-  OpenRouterStructuredSchema,
-} from "../openrouter.service.ts";
+import type { OpenRouterJsonSchemaResponseFormat, OpenRouterStructuredSchema } from "../services/openrouter.service.ts";
 
 export const chatReplyV1Zod = z.object({
   answer: z.string(),
@@ -49,4 +46,3 @@ export const chatReplyV1StructuredSchema: OpenRouterStructuredSchema<ChatReplyV1
   response_format: chatReplyV1ResponseFormat,
   parse: (value) => chatReplyV1Zod.parse(value),
 };
-

@@ -15,15 +15,19 @@ Tech stack dobrze pokrywa podstawowe wymagania PRD, ale warto wtrącić kilka uw
 - **Bezpieczeństwo:** Supabase zapewnia auth, demo/pełne role i limity (US-001, US-007). Trzeba zadbać o bezpieczne przechowywanie kluczy (Supabase + Openrouter) i walidację limitów po stronie backendu (backendowy enforcement w PRD). Warto dodać monitoring i alerty dla eventów KPI oraz zabezpieczyć eksport JSON/CSV (US-008). Dla danych użytkowników kluczowe jest szyfrowanie w tranzycie i ograniczenie dostępu do API (rate limiting).
 
 ## Podsumowanie
+
 Stack jest zgodny z potrzebami PRD, przy czym należy:
+
 - dokłądnie określić polityki kosztowe dla Openrouter i ewentualnie używać cache lub heurystyk by zredukować liczbę wywołań,
 - zaplanować strukturę eventów KPI i limitów w Supabase tak, by spełnić wymagania produktów bez nadmiarowej logiki po stronie serwera,
 - zapewnić monitoring i audyty bezpieczeństwa danych i eksportów.
 
 Jeśli potrzebujesz, mogę pomóc zaprojektować konkretną architekturę danych/limitów w Supabase albo schemat integracji z Openrouter. Czy chcesz, żebym rozwinął któryś z tych obszarów?
+
 ## Stos technologiczny
 
 ### Frontend
+
 - **Astro 5** pozwala tworzyć szybkie strony koncentrujące się na treści, a wbudowane renderowanie po stronie serwera minimalizuje ilość JavaScript.
 - **React 19** wykorzystywany jest tylko tam, gdzie potrzebna jest interaktywność (np. edytor fiszek, listy, filtrowanie).
 - **TypeScript 5** zwiększa pewność typów i poprawia doświadczenie programistyczne w całym projekcie.
@@ -31,20 +35,24 @@ Jeśli potrzebujesz, mogę pomóc zaprojektować konkretną architekturę danych
 - **Shadcn/ui** dostarcza gotowe komponenty React (dropdowny, chipsy, listy), które skracają wdrożenie złożonych widoków.
 
 ### Backend
+
 - **Supabase** udostępnia bazę PostgreSQL, uwierzytelnianie, przechowywanie sesji i logikę limitów bez konieczności budowania własnego serwera.
 - Można w nim zakładać RLS, limity kont demo vs pełnych oraz walidować API dla limitów fiszek, decków i generacji.
 - Statystyki sesji, KPI i eksport JSON/CSV mogą być trzymane w bazie, a logiczne funkcje (np. licznik generacji) wystarczy napisać raz.
 
 ### AI
+
 - **Openrouter.ai** integruje się z wieloma modelami (OpenAI, Anthropic, Google itp.), co pozwala eksperymentować z kosztami i jakością generowanych fiszek.
 - Obsługuje centralne zarządzanie kluczami, limity finansowe oraz monitorowanie zużycia, co ułatwia kontrolę kosztów.
 - Wszystkie wywołania modeli powinny przebiegać po stronie backendu, aby nie wystawiać kluczy.
 
 ### CI/CD i hosting
+
 - **GitHub Actions** automatyzuje testy, budowanie stron Astro i wdrożenie.
 - **DigitalOcean + Docker** to środowisko hostujące aplikację, którym można łatwo zarządzać przez obraz kontenera.
 
 ### Testy
+
 - **Vitest**: testy jednostkowe i integracyjne (TypeScript).
 - **Testing Library**: testy komponentów React (`@testing-library/react`, `@testing-library/user-event`).
 - **MSW (Mock Service Worker)**: mockowanie HTTP w testach frontendu.

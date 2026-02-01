@@ -28,4 +28,3 @@ export const POST: APIRoute = async (context) => {
     return json(http.status, { error: { code: http.code, message: http.message } });
   }
 };
-

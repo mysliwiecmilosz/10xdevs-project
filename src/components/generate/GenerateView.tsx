@@ -1,10 +1,4 @@
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-  type FormEvent,
-} from "react";
+import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
 import type { DeckCreateCommand, GenerateCardsCommand } from "@/types";
 import type {
   DeckOptionVm,
@@ -31,15 +25,14 @@ type GenerateViewProps = {
 const MIN_CONTENT_LENGTH = 50;
 const MAX_CONTENT_LENGTH = 100000;
 const DRAFT_STORAGE_KEY = "generate:draft";
-const uuidPattern =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
-export function GenerateView({
-  initialContent = "",
-  initialDeckId = null,
-}: GenerateViewProps) {
-  const { value: content, setValue: setContent, clear: clearDraft } =
-    useGenerateDraft(DRAFT_STORAGE_KEY, initialContent);
+export function GenerateView({ initialContent = "", initialDeckId = null }: GenerateViewProps) {
+  const {
+    value: content,
+    setValue: setContent,
+    clear: clearDraft,
+  } = useGenerateDraft(DRAFT_STORAGE_KEY, initialContent);
   const [deckId, setDeckId] = useState<string | null>(initialDeckId);
   const [touchedContent, setTouchedContent] = useState(false);
   const [limits, setLimits] = useState<GenerateLimitsVm>({
@@ -120,12 +113,8 @@ export function GenerateView({
     return undefined;
   }, [decks, decksError, decksStatus, isDeckLimitReached]);
 
-  const isContentInvalid =
-    content.length < MIN_CONTENT_LENGTH || content.length > MAX_CONTENT_LENGTH;
-  const isSubmitDisabled =
-    status === "loading" ||
-    isContentInvalid ||
-    limits.isGenerationBlocked;
+  const isContentInvalid = content.length < MIN_CONTENT_LENGTH || content.length > MAX_CONTENT_LENGTH;
+  const isSubmitDisabled = status === "loading" || isContentInvalid || limits.isGenerationBlocked;
 
   const handleContentChange = useCallback((next: string) => {
     setContent(next);
@@ -170,7 +159,7 @@ export function GenerateView({
         setIsCreatingDeck(false);
       }
     },
-    [addDeck],
+    [addDeck]
   );
 
   const handleCreateDeckOpenChange = useCallback((open: boolean) => {
@@ -199,7 +188,7 @@ export function GenerateView({
 
       mutate(command);
     },
-    [content, deckId, isSubmitDisabled, mutate],
+    [content, deckId, isSubmitDisabled, mutate]
   );
 
   const handleRetry = useCallback(() => {
@@ -245,15 +234,9 @@ export function GenerateView({
   return (
     <main className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-10">
       <header className="space-y-2">
-        <p className="text-xs uppercase tracking-[0.2em] text-neutral-500">
-          Generowanie fiszek
-        </p>
-        <h1 className="text-3xl font-semibold text-neutral-900">
-          Generuj fiszki
-        </h1>
-        <p className="text-sm text-neutral-600">
-          Wklej tekst źródłowy, wybierz deck i uruchom generację.
-        </p>
+        <p className="text-xs uppercase tracking-[0.2em] text-neutral-500">Generowanie fiszek</p>
+        <h1 className="text-3xl font-semibold text-neutral-900">Generuj fiszki</h1>
+        <p className="text-sm text-neutral-600">Wklej tekst źródłowy, wybierz deck i uruchom generację.</p>
       </header>
 
       <LimitBanner limits={limits} error={limitError} />
@@ -269,9 +252,7 @@ export function GenerateView({
             onBlur={handleContentBlur}
             disabled={status === "loading"}
             validation={
-              showValidationError
-                ? { state: "error", message: validation.content?.message }
-                : { state: "idle" }
+              showValidationError ? { state: "error", message: validation.content?.message } : { state: "idle" }
             }
           />
           <DeckPicker
@@ -283,17 +264,10 @@ export function GenerateView({
             onChange={handleDeckChange}
             onCreateDeck={handleCreateDeckClick}
           />
-          <GenerateSubmitButton
-            disabled={isSubmitDisabled}
-            loading={status === "loading"}
-          />
+          <GenerateSubmitButton disabled={isSubmitDisabled} loading={status === "loading"} />
         </form>
 
-        <GenerateProgressPanel
-          state={requestState}
-          error={error}
-          onRetry={canRetry ? handleRetry : undefined}
-        />
+        <GenerateProgressPanel state={requestState} error={error} onRetry={canRetry ? handleRetry : undefined} />
       </div>
 
       <CreateDeckModal

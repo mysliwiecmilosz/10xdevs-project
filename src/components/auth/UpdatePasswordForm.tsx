@@ -12,11 +12,7 @@ type UpdatePasswordFormProps = {
   onSubmit?: (payload: { password: string }) => void;
 };
 
-export function UpdatePasswordForm({
-  isSubmitting = false,
-  error,
-  onSubmit,
-}: UpdatePasswordFormProps) {
+export function UpdatePasswordForm({ isSubmitting = false, error, onSubmit }: UpdatePasswordFormProps) {
   const passwordId = useId();
   const confirmId = useId();
   const [password, setPassword] = useState("");
@@ -30,11 +26,7 @@ export function UpdatePasswordForm({
         ? `Hasło musi mieć co najmniej ${MIN_PASSWORD_LENGTH} znaków.`
         : null;
   const confirmError =
-    touched && !confirm
-      ? "Powtórz hasło."
-      : touched && confirm !== password
-        ? "Hasła muszą być takie same."
-        : null;
+    touched && !confirm ? "Powtórz hasło." : touched && confirm !== password ? "Hasła muszą być takie same." : null;
   const hasErrors = Boolean(passwordError || confirmError);
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
@@ -92,9 +84,7 @@ export function UpdatePasswordForm({
         ) : null}
       </div>
 
-      <p className="text-xs text-neutral-500">
-        Po zapisaniu nowego hasła wrócisz do aplikacji.
-      </p>
+      <p className="text-xs text-neutral-500">Po zapisaniu nowego hasła wrócisz do aplikacji.</p>
 
       <AuthErrorBanner error={error} />
 

@@ -1,7 +1,6 @@
 import type { APIRoute } from "astro";
 import { z, ZodError } from "zod";
 
-import { DEFAULT_USER_ID } from "../../../../db/supabase.client.ts";
 import type { CardDto, ListCardsResponseDto } from "../../../../types.ts";
 
 export const prerender = false;
@@ -32,15 +31,9 @@ const listCardsQuerySchema = z.object({
 
 export const GET: APIRoute = async (context) => {
   try {
-    const userId = DEFAULT_USER_ID;
-    if (!userId || userId.trim() === "###" || !isUuid(userId)) {
-      return json(500, {
-        error: {
-          code: "default_user_not_configured",
-          message:
-            "DEFAULT_USER_ID is not configured. Set DEFAULT_USER_ID to an existing public.profiles.id UUID.",
-        },
-      });
+    const userId = context.locals.user?.id;
+    if (!userId || !isUuid(userId)) {
+      return json(401, { error: { code: "unauthorized", message: "User is not authenticated." } });
     }
 
     const sourceId = context.params.source_id;
@@ -48,9 +41,7 @@ export const GET: APIRoute = async (context) => {
       return json(400, { error: { code: "validation_error", message: "Invalid source_id." } });
     }
 
-    const parsed = listCardsQuerySchema.parse(
-      Object.fromEntries(new URL(context.request.url).searchParams.entries()),
-    );
+    const parsed = listCardsQuerySchema.parse(Object.fromEntries(new URL(context.request.url).searchParams.entries()));
     const page = parsed.page;
     const limit = parsed.limit;
     const from = (page - 1) * limit;
@@ -60,7 +51,7 @@ export const GET: APIRoute = async (context) => {
       .from("cards")
       .select(
         "id, question, answer, context, difficulty, tags, quality_status, deck_id, source_id, created_at, updated_at",
-        { count: "exact" },
+        { count: "exact" }
       )
       .eq("user_id", userId)
       .eq("source_id", sourceId)
@@ -94,4 +85,3 @@ export const GET: APIRoute = async (context) => {
     return json(500, { error: { code: "internal_error", message: "Internal server error." } });
   }
 };
-

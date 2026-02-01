@@ -1,4 +1,4 @@
-import { OpenRouterService, type OpenRouterServiceDeps } from "../openrouter.service.ts";
+import { OpenRouterService, type OpenRouterServiceDeps } from "./openrouter.service.ts";
 
 function isPlaceholder(value: string | undefined): boolean {
   if (!value) return true;
@@ -42,7 +42,6 @@ export function createOpenRouterServiceFromEnv(deps: OpenRouterServiceDeps = {})
       appReferer,
       appTitle,
     },
-    deps,
+    deps
   );
 }
-

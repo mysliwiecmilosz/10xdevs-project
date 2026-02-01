@@ -25,7 +25,10 @@ const resetUsageSchema = z
     // If true: delete all rows for DEFAULT_USER_ID. Otherwise only for `date`.
     all: z.boolean().optional(),
     // YYYY-MM-DD (UTC). If omitted and all=false, defaults to today.
-    date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+    date: z
+      .string()
+      .regex(/^\d{4}-\d{2}-\d{2}$/)
+      .optional(),
   })
   .optional();
 
@@ -37,8 +40,7 @@ export const POST: APIRoute = async (context) => {
       return json(500, {
         error: {
           code: "default_user_not_configured",
-          message:
-            "DEFAULT_USER_ID is not configured. Set DEFAULT_USER_ID to an existing public.profiles.id UUID.",
+          message: "DEFAULT_USER_ID is not configured. Set DEFAULT_USER_ID to an existing public.profiles.id UUID.",
         },
       });
     }
@@ -73,4 +75,3 @@ export const POST: APIRoute = async (context) => {
     return json(500, { error: { code: "internal_error", message: "Internal server error." } });
   }
 };
-

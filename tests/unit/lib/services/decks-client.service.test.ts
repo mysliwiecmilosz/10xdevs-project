@@ -19,9 +19,9 @@ describe("decks-client.service", () => {
             ],
             meta: { total: 1, page: 1, limit: 20 },
           },
-          { status: 200 },
+          { status: 200 }
         );
-      }),
+      })
     );
 
     const res = await getDecks({ page: 1, limit: 20 });
@@ -48,11 +48,8 @@ describe("decks-client.service", () => {
   it("throws parsed error payload on failure", async () => {
     server.use(
       http.get("/api/decks", () => {
-        return HttpResponse.json(
-          { error: { status: 500, code: "internal", message: "Boom" } },
-          { status: 500 },
-        );
-      }),
+        return HttpResponse.json({ error: { status: 500, code: "internal", message: "Boom" } }, { status: 500 });
+      })
     );
 
     await expect(getDecks()).rejects.toMatchObject({ status: 500, code: "internal", message: "Boom" });

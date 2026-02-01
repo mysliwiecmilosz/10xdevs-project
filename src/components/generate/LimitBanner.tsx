@@ -1,7 +1,4 @@
-import type {
-  GenerateApiErrorVm,
-  GenerateLimitsVm,
-} from "@/lib/viewmodels/generate.vm";
+import type { GenerateApiErrorVm, GenerateLimitsVm } from "@/lib/viewmodels/generate.vm";
 
 type LimitBannerProps = {
   limits: GenerateLimitsVm;
@@ -16,9 +13,7 @@ export function LimitBanner({ limits, error, onDismiss }: LimitBannerProps) {
     return null;
   }
 
-  const title = limits.isGenerationBlocked
-    ? "Limit generacji został wykorzystany"
-    : "Nie można teraz generować";
+  const title = limits.isGenerationBlocked ? "Limit generacji został wykorzystany" : "Nie można teraz generować";
 
   const description =
     error?.message ??
@@ -27,10 +22,7 @@ export function LimitBanner({ limits, error, onDismiss }: LimitBannerProps) {
       : "Spróbuj ponownie za jakiś czas.");
 
   return (
-    <section
-      className="rounded-md border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800"
-      role="alert"
-    >
+    <section className="rounded-md border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800" role="alert">
       <div className="flex items-start justify-between gap-4">
         <div className="space-y-1">
           <p className="font-medium">{title}</p>
